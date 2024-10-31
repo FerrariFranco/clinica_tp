@@ -1,0 +1,43 @@
+<div class="formulario-container">
+  <form (ngSubmit)="onRegister()">
+    <label>
+      Nombre:
+      <input type="text" [(ngModel)]="nombre" name="nombre" required />
+    </label>
+    <label>
+      Apellido:
+      <input type="text" [(ngModel)]="apellido" name="apellido" required />
+    </label>
+    <label>
+      Edad:
+      <input type="number" [(ngModel)]="edad" name="edad" required />
+    </label>
+    <label>
+      DNI:
+      <input type="text" [(ngModel)]="dni" name="dni" required />
+    </label>
+    <label>
+      Obra Social:
+      <input type="text" [(ngModel)]="obraSocial" name="obraSocial" required />
+    </label>
+    <label>
+      Mail:
+      <input type="email" [(ngModel)]="mail" name="mail" required />
+    </label>
+    <label>
+      Contraseña:
+      <input type="password" [(ngModel)]="password" name="password" required />
+    </label>
+    <label>
+      Imagen 1:
+      <input type="file" (change)="onImage1Selected($event)" />
+    </label>
+    <label>
+      Imagen 2:
+      <input type="file" (change)="onImage2Selected($event)" />
+    </label>
+    <button type="submit" [disabled]="loading">Registrar Paciente</button>
+    
+    <app-spinner *ngIf="loading"></app-spinner>
+  </form>
+</div>

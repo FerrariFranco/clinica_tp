@@ -1,0 +1,31 @@
+<div *ngIf="loading">
+  <h1>Cargando usuarios...</h1>
+</div>
+
+<div *ngIf="!loading" class="usuario-container">
+  <div class="lista-container">
+    <h1>Lista de Especialistas</h1>
+    <ul class="usuario-list">
+      <li *ngFor="let especialista of especialistas" class="usuario-item">
+        <img *ngIf="especialista.imagenUrl" [src]="especialista.imagenUrl" alt="{{ especialista.nombre }}" class="usuario-imagen">
+        <span class="usuario-nombre">{{ especialista.nombre }} {{ especialista.apellido }} - {{ especialista.especialidad }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <div class="lista-container">
+    <h1>Lista de Pacientes</h1>
+    <ul class="usuario-list">
+      <li *ngFor="let paciente of pacientes" class="usuario-item">
+        <img *ngIf="paciente.imagen1Url" [src]="paciente.imagen1Url" alt="{{ paciente.nombre }}" class="usuario-imagen">
+        <span class="usuario-nombre">{{ paciente.nombre }} {{ paciente.apellido }} - {{ paciente.mail }}</span>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Componentes de Registro -->
+  <div class="registro-container">
+    <app-registro-pacientes></app-registro-pacientes>
+    <app-registro-especialistas></app-registro-especialistas>
+  </div>
+</div>

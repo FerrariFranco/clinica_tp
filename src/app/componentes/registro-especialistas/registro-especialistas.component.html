@@ -1,0 +1,44 @@
+<div class="formulario-container">
+  <form (ngSubmit)="onRegister()">
+    <label>
+      Nombre:
+      <input type="text" [(ngModel)]="nombre" name="nombre" required />
+    </label>
+    <label>
+      Apellido:
+      <input type="text" [(ngModel)]="apellido" name="apellido" required />
+    </label>
+    <label>
+      Edad:
+      <input type="number" [(ngModel)]="edad" name="edad" required />
+    </label>
+    <label>
+      DNI:
+      <input type="text" [(ngModel)]="dni" name="dni" required />
+    </label>
+    <label>
+      Especialidad:
+      <select [(ngModel)]="especialidad" name="especialidad" required>
+        <option value="" disabled selected>-- Seleccionar --</option>
+        <option *ngFor="let especialidad of especialidadesList" [value]="especialidad">{{ especialidad }}</option>
+      </select>
+      <input type="text" [(ngModel)]="nuevaEspecialidad" placeholder="Agregar nueva especialidad (opcional)" name="nuevaEspecialidad" />
+    </label>
+    <label>
+      Mail:
+      <input type="email" [(ngModel)]="mail" name="mail" required />
+    </label>
+    <label>
+      Contraseña (no se guardará):
+      <input type="password" [(ngModel)]="password" name="password" required />
+    </label>
+    <label>
+      Foto:
+      <input type="file" (change)="onFileSelected($event)" required />
+    </label>
+    <button type="submit" [disabled]="loading">Registrar Especialista</button>
+
+    <!-- Spinner -->
+    <app-spinner *ngIf="loading"></app-spinner>
+  </form>
+</div>
