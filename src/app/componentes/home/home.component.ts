@@ -10,6 +10,7 @@ import { combineLatest } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent implements OnInit {
   user: User | null = null;

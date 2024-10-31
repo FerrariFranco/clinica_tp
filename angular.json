@@ -15,8 +15,10 @@
       "prefix": "app",
       "architect": {
         "build": {
+          
           "builder": "@angular-devkit/build-angular:application",
           "options": {
+            "optimization": false,
             "outputPath": "dist/clinica_tp",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -41,8 +43,9 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
-                  "maximumError": "1MB"
+                  "maximumWarning": "3mb", 
+                  "maximumError": "4mb" 
+
                 },
                 {
                   "type": "anyComponentStyle",

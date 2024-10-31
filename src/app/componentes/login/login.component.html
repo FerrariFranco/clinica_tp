@@ -5,6 +5,20 @@
   <div class="login-container">
     <form (ngSubmit)="onLogin()" class="login-form">
       <h2>Iniciar Sesión</h2>
+      
+      <!-- Botones para autocompletar -->
+      <div class="preset-buttons">
+        <button type="button" (click)="fillCredentials('admin')" class="preset-button">
+          Admin
+        </button>
+        <button type="button" (click)="fillCredentials('especialista')" class="preset-button">
+          Especialista
+        </button>
+        <button type="button" (click)="fillCredentials('paciente')" class="preset-button">
+          Paciente
+        </button>
+      </div>
+
       <input
         type="email"
         [(ngModel)]="email"

@@ -1,0 +1,18 @@
+.home-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; 
+    background-image: url('../../../assets/bg-home.jpg');
+    background-size: cover;
+    background-position: center;
+    color: white; 
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
+  }
+  
+  h1 {
+    font-size: 3em;
+    font-weight: bold;
+    text-align: center;
+  }
+  

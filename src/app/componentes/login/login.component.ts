@@ -31,4 +31,17 @@ export class LoginComponent {
       this.loading = false;
     }
   }
+
+  fillCredentials(role: string) {
+    if (role === 'admin') {
+      this.email = 'admin@gmail.com';
+      this.password = 'Prueba123';
+    } else if (role === 'especialista') {
+      this.email = 'especialista@gmail.com';
+      this.password = 'Prueba123';
+    } else if (role === 'paciente') {
+      this.email = 'paciente@gmail.com';
+      this.password = 'Prueba123';
+    }
+  }
 }
