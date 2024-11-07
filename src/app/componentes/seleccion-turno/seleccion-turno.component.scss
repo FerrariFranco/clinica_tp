@@ -1,0 +1,140 @@
+/* Estilos generales */
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  /* Contenedor principal */
+  /* Títulos */
+  h2, h3 {
+      color: #333;
+    }
+    
+    /* Tabla de Especialidades */
+    table {
+        width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+
+th {
+    background-color: #007BFF;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+td:hover {
+    background-color: #e9ecef;
+}
+  
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+}
+
+li:hover {
+    background-color: #007BFF;
+    color: white;
+    transform: scale(1.02);
+}
+
+/* Turnos Disponibles */
+ul li {
+    background-color: #f9f9f9;
+}
+  
+  ul li.selected {
+      background-color: #28a745;
+      color: white;
+    }
+    
+    /* Mensajes */
+    p {
+        color: #666;
+    }
+   /* Contenedor principal */
+
+
+/* Contenedor para los turnos */
+.turnos-container {
+    display: flex;                  /* Utiliza flexbox para alinear los elementos horizontalmente */
+    justify-content: center;        /* Centra las columnas horizontalmente */
+    margin-top: 20px;
+    flex-wrap: wrap;                /* Permite que las columnas se envuelvan en caso de ser necesario */
+}
+
+/* Estilos para cada día */
+div {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    max-width: 1000px; /* Aumenta el ancho máximo del contenedor principal */
+    margin: 20px auto; /* Centra el contenedor principal */
+}
+/* Estilos para el encabezado de los días */
+.dia h4 {
+    text-align: center;            /* Centra el texto del encabezado */
+    color: #333;                   /* Color del texto */
+}
+
+/* Estilos para la lista de turnos */
+.dia ul {
+    list-style: none;              /* Sin viñetas */
+    padding: 0;                    /* Sin padding */
+}
+
+.dia li {
+    padding: 8px;                  /* Espaciado interno */
+    margin: 5px 0;                 /* Margen vertical entre elementos */
+    border-radius: 4px;            /* Bordes redondeados */
+    transition: background-color 0.3s; /* Transición suave para el hover */
+
+}
+
+.dia li:hover {
+    background-color: #e0e0e0;     /* Color de fondo al pasar el mouse */
+}
+
+.dia li.selected {
+    background-color: #007bff;     /* Color de fondo para la opción seleccionada */
+    color: white;                  /* Color del texto seleccionado */
+}
+.solicitar-turno {
+    position: fixed;            /* Posición fija en la pantalla */
+    bottom: 20px;              /* Distancia desde el fondo */
+    right: 20px;               /* Distancia desde la derecha */
+    background-color: #007BFF; /* Color de fondo del botón */
+    color: white;              /* Color del texto */
+    border: none;              /* Sin borde */
+    border-radius: 50px;       /* Bordes redondeados */
+    padding: 10px 20px;        /* Espaciado interno */
+    font-size: 16px;           /* Tamaño de la fuente */
+    cursor: pointer;           /* Cambia el cursor al pasar el mouse */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); /* Sombra del botón */
+    transition: background-color 0.3s; /* Transición suave para el hover */
+}
+
+.solicitar-turno:hover {
+    background-color: #0056b3; /* Color más oscuro al pasar el mouse */
+}

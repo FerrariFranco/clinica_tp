@@ -1,0 +1,35 @@
+<form [formGroup]="horariosForm">
+  <div class="mis-horarios">
+    <h2>Selecciona tus días y horarios</h2>
+
+    <div class="dias">
+      <h3>Días de la Semana</h3>
+      <div *ngFor="let dia of dias">
+        <label>
+          <input type="checkbox" (change)="onDiaSeleccionado(dia)" />
+          {{ dia }}
+        </label>
+      </div>
+    </div>
+
+    <div class="horario">
+      <h3>Rango Horario</h3>
+      <label for="horaInicio">Hora de Inicio:</label>
+      <input type="time" id="horaInicio" formControlName="horaInicio" step="1800" />
+
+      <label for="horaFin">Hora de Fin:</label>
+      <input type="time" id="horaFin" formControlName="horaFin" step="1800" />
+    </div>
+
+    <div class="especialidad">
+      <h3>Selecciona tu Especialidad</h3>
+      <select formControlName="especialidad" (change)="onEspecialidadSeleccionada($event)">
+        <option *ngFor="let especialidad of especialidades" [value]="especialidad">
+          {{ especialidad }}
+        </option>
+      </select>
+    </div>
+
+    <button (click)="generarTurnosDisponibles()">Guardar</button>
+  </div>
+</form>

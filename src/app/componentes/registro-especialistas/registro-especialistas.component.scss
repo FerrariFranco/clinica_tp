@@ -59,4 +59,17 @@
     display: block; /* Mostrar el spinner como bloque */
     margin: 10px auto; /* Centrar el spinner */
   }
+  .especialidad-item {
+    padding: 8px;
+    margin: 4px;
+    cursor: pointer;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .especialidad-item.seleccionada {
+    background-color: #4CAF50; /* Color para las especialidades seleccionadas */
+    color: white;
+    font-weight: bold;
+  }
   

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Auth, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, onAuthStateChanged, User, UserCredential } from '@angular/fire/auth';
+import { Auth,sendEmailVerification, signInWithEmailAndPassword, signOut, createUserWithEmailAndPassword, onAuthStateChanged, User, UserCredential } from '@angular/fire/auth';
 import { Firestore, doc, getDocs, collection, query, where } from '@angular/fire/firestore';
 import { Observable, from } from 'rxjs';
 import { switchMap, map } from 'rxjs/operators';
@@ -16,8 +16,8 @@ export class AuthService {
     });
   }
 
-  async login(email: string, password: string): Promise<void> {
-    await signInWithEmailAndPassword(this.auth, email, password);
+  login(email: string, password: string): Promise<UserCredential> {
+    return signInWithEmailAndPassword(this.auth, email, password);
   }
 
   async logout(): Promise<void> {
@@ -53,5 +53,18 @@ export class AuthService {
         );
       })
     );
+  }
+  sendVerificationEmail(user: User) {
+    return sendEmailVerification(user);
+  }
+  async isEspecialistaAutorizado(email: string): Promise<boolean> {
+    const especialistasRef = collection(this.firestore, 'especialistas');
+    const q = query(especialistasRef, where('mail', '==', email));
+    const especialistasSnapshot = await getDocs(q);
+    if (!especialistasSnapshot.empty) {
+      const especialistaData = especialistasSnapshot.docs[0].data();
+      return especialistaData['autorizado'] === true;
+    }
+    return false;
   }
 }

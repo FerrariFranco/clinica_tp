@@ -1,2 +1,5 @@
 <app-navbar></app-navbar>
+<div *ngFor="let alert of alerts">
+  <app-alert [message]="alert.message" [type]="alert.type"></app-alert>
+</div>
 <router-outlet></router-outlet>

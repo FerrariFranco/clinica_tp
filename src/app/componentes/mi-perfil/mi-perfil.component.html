@@ -1,0 +1,23 @@
+<div *ngIf="userRole === 'paciente' && paciente">
+    <h2>Perfil del Paciente</h2>
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>Apellido:</strong> {{ paciente.apellido }}</p>
+    <p><strong>Email:</strong> {{ paciente.mail }}</p>
+    <img *ngIf="paciente.imagen1url" [src]="paciente.imagen1url" alt="Imagen del paciente" />
+  </div>
+  
+  <div *ngIf="userRole === 'especialista' && especialista">
+    <h2>Perfil del Especialista</h2>
+    <p><strong>Nombre:</strong> {{ especialista.nombre }}</p>
+    <p><strong>Apellido:</strong> {{ especialista.apellido }}</p>
+    <p><strong>Email:</strong> {{ especialista.mail }}</p>
+    <p><strong>Especialidades:</strong> {{ especialista.especialidades }}</p>
+    <img *ngIf="especialista.imagenUrl" [src]="especialista.imagenUrl" alt="Imagen del especialista" />
+    
+    <button (click)="verMisHorarios()">Mis horarios</button>
+  </div>
+  
+  <div *ngIf="!paciente && !especialista">
+    <p>No se ha encontrado información de perfil.</p>
+  </div>
+  

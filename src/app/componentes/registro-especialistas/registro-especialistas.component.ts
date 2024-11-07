@@ -1,36 +1,49 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
 import { AuthService } from '../../servicios/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner.component';
 import { getStorage, ref, uploadBytes, getDownloadURL } from '@angular/fire/storage';
+import { sendEmailVerification } from '@angular/fire/auth';
+import { RecaptchaDirective } from '../../directivas/recaptcha.directive';
+import { AlertService } from '../../servicios/alert.service';
 
 @Component({
   selector: 'app-registro-especialistas',
   standalone: true,
-  imports: [CommonModule, FormsModule, SpinnerComponent],
+  imports: [CommonModule, FormsModule, SpinnerComponent, RecaptchaDirective],
   templateUrl: './registro-especialistas.component.html',
   styleUrls: ['./registro-especialistas.component.scss'],
 })
-export class RegistroEspecialistasComponent {
+export class RegistroEspecialistasComponent implements OnInit {
   nombre = '';
   apellido = '';
   edad: number | null = null;
   dni = '';
   especialidad = '';
+  autorizado = false;
   nuevaEspecialidad = '';
   mail = '';
   password = '';
   loading = false;
   selectedFile: File | null = null;
+  captchaValid = false;
+  especialidadesSeleccionadas: string[] = []; 
+  especialidadesList: string[] = [];
 
-  especialidadesList = ['Cardiología', 'Dermatología', 'Pediatría', 'Neurología'];
+  constructor(
+    private firestore: Firestore, 
+    private authService: AuthService, 
+    private router: Router, 
+    private alertService: AlertService
+  ) {}
 
-  constructor(private firestore: Firestore, private authService: AuthService, private router: Router) {}
+  async ngOnInit() {
+    await this.cargarEspecialidades();
+  }
 
-  // Manejar selección de archivo
   onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
@@ -38,40 +51,101 @@ export class RegistroEspecialistasComponent {
     }
   }
 
+  onCaptchaResolved(isResolved: boolean) {
+    this.captchaValid = isResolved;
+  }
+
+  async cargarEspecialidades() {
+    const especialidadesRef = collection(this.firestore, 'especialidades');
+    const snapshot = await getDocs(especialidadesRef);
+    this.especialidadesList = snapshot.docs.map(doc => doc.data()['nombre']);
+  }
+
+  validateFields(): boolean {
+    if (!this.nombre || !this.apellido || !this.dni || !this.mail || !this.password || !this.edad) {
+      this.alertService.showAlert('Todos los campos deben ser completados.', 'error');
+      return false;
+    }
+    if (/\d/.test(this.nombre) || /\d/.test(this.apellido)) {
+      this.alertService.showAlert('El nombre y el apellido no pueden contener números.', 'error');
+      return false;
+    }
+    if (isNaN(Number(this.dni))) {
+      this.alertService.showAlert('El DNI debe contener solo números.', 'error');
+      return false;
+    }
+    if (isNaN(Number(this.edad))) {
+      this.alertService.showAlert('La edad debe ser un número.', 'error');
+      return false;
+    }
+    return true;
+  }
+
+  async agregarEspecialidad() {
+    if (this.nuevaEspecialidad && !this.especialidadesList.includes(this.nuevaEspecialidad.trim())) {
+      try {
+        const especialidadesRef = collection(this.firestore, 'especialidades');
+        await addDoc(especialidadesRef, { nombre: this.nuevaEspecialidad.trim() });
+        
+        this.especialidadesList.push(this.nuevaEspecialidad.trim());
+        this.nuevaEspecialidad = '';
+      } catch (error) {
+        console.error("Error al agregar la especialidad:", error);
+      }
+    } else {
+      this.alertService.showAlert('La especialidad ya existe o el campo está vacío.', 'error');
+    }
+  }
+
+  toggleEspecialidad(especialidad: string) {
+    if (this.especialidadesSeleccionadas.includes(especialidad)) {
+      this.especialidadesSeleccionadas = this.especialidadesSeleccionadas.filter(e => e !== especialidad);
+    } else {
+      this.especialidadesSeleccionadas.push(especialidad);
+    }
+  }
+
+  isEspecialidadSeleccionada(especialidad: string): boolean {
+    return this.especialidadesSeleccionadas.includes(especialidad);
+  }
+
   async onRegister() {
     this.loading = true;
     try {
-      // Registrar el usuario en Firebase Authentication
+      if (!this.validateFields()) {
+        this.loading = false;
+        return; 
+      }
+
       const userCredential = await this.authService.register(this.mail, this.password);
       const user = userCredential.user;
 
-      // Subir la imagen seleccionada a Firebase Storage y obtener la URL
+      await sendEmailVerification(user);
+      this.alertService.showAlert('Registrado Correctamente!! Revise su casilla de correo electrónico para verificar su cuenta.', 'success');
+
       let imageUrl: string | null = null;
       if (this.selectedFile) {
         const storage = getStorage();
         const imageRef = ref(storage, `fotosEspecialistas/${this.mail}1.jpg`);
         await uploadBytes(imageRef, this.selectedFile);
-        // Obtener la URL de descarga
         imageUrl = await getDownloadURL(imageRef);
       }
 
-      // Crear un nuevo especialista
       const especialistaData = {
         nombre: this.nombre,
         apellido: this.apellido,
         edad: this.edad,
         dni: this.dni,
-        especialidad: this.nuevaEspecialidad || this.especialidad,
+        especialidades: this.especialidadesSeleccionadas,  
         mail: this.mail,
         uid: user.uid,
-        imagenUrl: imageUrl // Agregar URL de la imagen
+        autorizado: this.autorizado,
+        imagenUrl: imageUrl
       };
 
-      // Guardar datos en la colección 'especialistas'
       const especialistasRef = collection(this.firestore, 'especialistas');
       await addDoc(especialistasRef, especialistaData);
 
-      // Guardar datos en la colección 'usuarios'
       const usuarioData = {
         email: this.mail,
         rol: 'especialista',
@@ -80,10 +154,11 @@ export class RegistroEspecialistasComponent {
       const usuariosRef = collection(this.firestore, 'usuarios');
       await addDoc(usuariosRef, usuarioData);
 
-      console.log('Especialista registrado y autenticado exitosamente');
-      this.router.navigate(['/home']);
+      await this.authService.logout();
+
+      this.router.navigate(['/login']);
     } catch (error) {
-      console.error('Error al registrar especialista:', error);
+      this.alertService.showAlert('ERROR INESPERADO', 'error');
     } finally {
       this.loading = false;
     }

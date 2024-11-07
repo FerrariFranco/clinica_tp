@@ -4,6 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner.component';
+import { getAuth, sendEmailVerification } from '@angular/fire/auth';
+import { AlertService } from '../../servicios/alert.service';
 
 @Component({
   selector: 'app-login',
@@ -13,35 +15,58 @@ import { SpinnerComponent } from '../spinner/spinner.component';
   styleUrls: ['./login.component.scss'],
 })
 export class LoginComponent {
+  
   email = '';
   password = '';
   loading = false;
+  showFavoriteButtons = false;
+  
+  constructor(private authService: AuthService, private router: Router, private alertService:AlertService) {}
+  fillCredentials(role: string) {
+    switch (role) {
+      case 'admin':
+        this.email = 'admin@example.com';
+        this.password = 'admin123';
+        break;
+      case 'especialista':
+        this.email = 'especialista@example.com';
+        this.password = 'especialista123';
+        break;
+      case 'paciente':
+        this.email = 'paciente@example.com';
+        this.password = 'paciente123';
+        break;
+      default:
+        break;
+    }
+  }
 
-  constructor(private authService: AuthService, private router: Router) {}
-
+  toggleFavoriteButtons() {
+    this.showFavoriteButtons = !this.showFavoriteButtons;
+  }
+  
+  
   async onLogin() {
     this.loading = true;
     try {
-      await this.authService.login(this.email, this.password);
-      console.log('Usuario logueado exitosamente');
-      this.router.navigate(['/home']);
+      const userCredential = await this.authService.login(this.email, this.password);
+      const user = userCredential.user;
+
+      if (user.emailVerified) {
+        this.alertService.showAlert('Usuario logueado exitosamente', 'success');
+
+        this.router.navigate(['/home']);
+      } else {
+        await sendEmailVerification(user);
+        this.alertService.showAlert('Correo no verificado. Se ha enviado un correo de verificación.', 'error');
+
+      }
     } catch (error) {
-      console.error('Error al iniciar sesión:', error);
+      this.alertService.showAlert('ERROR INESPERADO', 'error');
+
     } finally {
       this.loading = false;
     }
   }
 
-  fillCredentials(role: string) {
-    if (role === 'admin') {
-      this.email = 'admin@gmail.com';
-      this.password = 'Prueba123';
-    } else if (role === 'especialista') {
-      this.email = 'especialista@gmail.com';
-      this.password = 'Prueba123';
-    } else if (role === 'paciente') {
-      this.email = 'paciente@gmail.com';
-      this.password = 'Prueba123';
-    }
-  }
 }

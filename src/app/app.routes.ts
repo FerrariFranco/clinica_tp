@@ -7,6 +7,10 @@ import { RegistroEspecialistasComponent } from './componentes/registro-especiali
 import { UsuariosComponent } from './componentes/usuarios/usuarios.component';
 import { AdminGuard } from './guards/admin.guard'; 
 import { AuthGuard } from './guards/auth.guard';
+import { SeleccionTurnoComponent } from './componentes/seleccion-turno/seleccion-turno.component';
+import { MisHorariosComponent } from './componentes/mis-horarios/mis-horarios.component';
+import { MiPerfilComponent } from './componentes/mi-perfil/mi-perfil.component';
+import { TurnosComponent } from './componentes/turnos/turnos.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -14,6 +18,10 @@ export const routes: Routes = [
   { path: 'registro', component: RegistroComponent },
   { path: 'registro-pacientes', component: RegistroPacientesComponent },
   { path: 'registro-especialistas', component: RegistroEspecialistasComponent },
+  { path: 'turno', component: SeleccionTurnoComponent },
+  { path: 'horarios', component: MisHorariosComponent },
+  { path: 'mi-perfil', component: MiPerfilComponent },
+  { path: 'turnos', component: TurnosComponent },
   { path: 'usuarios', component: UsuariosComponent, canActivate: [AdminGuard] }, 
   { path: '**', redirectTo: '' },
 ];

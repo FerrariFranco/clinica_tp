@@ -1,0 +1,48 @@
+<div>
+    <h2>Seleccionar Turno</h2>
+
+    <!-- Tabla de Especialidades -->
+    <table>
+      <thead>
+        <tr>
+          <th>Especialidades</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let especialidad of especialidadesList" 
+            [class.selected]="especialidad === selectedEspecialidad" 
+            (click)="onEspecialidadSelect(especialidad)">
+          <td>{{ especialidad }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Especialistas Autorizados -->
+    <div *ngIf="especialistasAutorizados.length > 0">
+      <h3>Especialistas Autorizados en {{ selectedEspecialidad }}</h3>
+      <ul>
+        <li *ngFor="let especialista of especialistasAutorizados" 
+            [class.selected]="especialista === selectedEspecialista" 
+            (click)="onEspecialistaSelect(especialista)">
+          {{ especialista.nombre }} {{ especialista.apellido }}
+        </li>
+      </ul>
+    </div>
+
+    <div *ngIf="turnosDisponibles.length > 0">
+      <h3>Turnos Disponibles para {{ selectedEspecialista?.nombre }} {{ selectedEspecialista?.apellido }}</h3>
+      <ul>
+        <li *ngFor="let turno of turnosDisponibles" 
+            [class.selected]="turno === selectedTurno" 
+            (click)="selectTurno(turno)">
+          {{ turno.fecha }} - {{ turno.hora }}
+        </li>
+      </ul>
+    </div>
+    
+    <div *ngIf="selectedEspecialista && isEmpty(turnosDisponibles)">
+      <p>No hay turnos disponibles en la agenda.</p>
+    </div>
+    <button class="solicitar-turno" (click)="onSolicitarTurno()">Solicitar Turno</button>
+    
+</div>

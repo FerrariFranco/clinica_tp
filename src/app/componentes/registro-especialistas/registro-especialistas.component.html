@@ -17,13 +17,15 @@
       <input type="text" [(ngModel)]="dni" name="dni" required />
     </label>
     <label>
-      Especialidad:
-      <select [(ngModel)]="especialidad" name="especialidad" required>
-        <option value="" disabled selected>-- Seleccionar --</option>
-        <option *ngFor="let especialidad of especialidadesList" [value]="especialidad">{{ especialidad }}</option>
-      </select>
-      <input type="text" [(ngModel)]="nuevaEspecialidad" placeholder="Agregar nueva especialidad (opcional)" name="nuevaEspecialidad" />
+      Especialidades:
+      <div *ngFor="let especialidad of especialidadesList" (click)="toggleEspecialidad(especialidad)"
+     [ngClass]="{'seleccionada': isEspecialidadSeleccionada(especialidad)}" class="especialidad-item">
+  {{ especialidad }}
+</div>
+
     </label>
+    <input type="text" [(ngModel)]="nuevaEspecialidad" placeholder="Agregar nueva especialidad" name="nuevaEspecialidad" />
+    <button type="button" (click)="agregarEspecialidad()">Agregar Especialidad</button>
     <label>
       Mail:
       <input type="email" [(ngModel)]="mail" name="mail" required />
@@ -36,9 +38,10 @@
       Foto:
       <input type="file" (change)="onFileSelected($event)" required />
     </label>
+    <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
+
     <button type="submit" [disabled]="loading">Registrar Especialista</button>
 
-    <!-- Spinner -->
     <app-spinner *ngIf="loading"></app-spinner>
   </form>
 </div>

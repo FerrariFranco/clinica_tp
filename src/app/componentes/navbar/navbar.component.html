@@ -2,6 +2,7 @@
     <div class="nav-content">
       <ng-container *ngIf="user; else loggedOut">
         <button *ngIf="isAdmin" routerLink="/usuarios">Usuarios</button> <!-- Mostrar solo si es admin -->
+        <button  routerLink="/mi-perfil">Mi Perfil</button> <!-- Mostrar solo si es admin -->
         <button (click)="onLogout()">Cerrar Sesión</button>
       </ng-container>
   

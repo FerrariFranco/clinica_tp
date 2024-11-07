@@ -1,75 +1,74 @@
-/* Estilo general para el contenedor de usuarios */
 .usuario-container {
-    padding: 20px;
-    background-color: #f9f9f9; /* Color de fondo suave */
-    border-radius: 10px; /* Bordes redondeados para el contenedor */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para el contenedor */
-    margin: 20px 0; /* Margen entre el contenedor y otros elementos */
-  }
-  
-  /* Estilo para la lista de usuarios */
-  .usuario-list {
-    list-style-type: none; /* Eliminar viñetas */
-    padding: 0; /* Eliminar padding */
-  }
-  
-  /* Estilo para cada item de usuario */
-  .usuario-item {
-    display: flex; /* Usar flexbox para alinear imagen y texto */
-    align-items: center; /* Alinear verticalmente */
-    padding: 10px; /* Espaciado entre los items */
-    border: 1px solid #ddd; /* Borde alrededor de cada item */
-    border-radius: 8px; /* Bordes redondeados */
-    margin: 5px 0; /* Margen entre items */
-    transition: background-color 0.3s; /* Efecto de transición para el hover */
-    background-color: #ffffff; /* Color de fondo blanco */
-  }
-  
-  .usuario-item:hover {
-    background-color: #e6f7ff; /* Cambiar color de fondo al pasar el mouse */
-  }
-  
-  /* Estilo para la imagen del usuario */
-  .usuario-imagen {
-    width: 40px; /* Ancho de la imagen */
-    height: 40px; /* Alto de la imagen */
-    border-radius: 50%; /* Hacer la imagen circular */
-    margin-right: 10px; /* Espaciado entre la imagen y el texto */
-  }
-  
-  /* Estilo para el texto del nombre del usuario */
-  .usuario-nombre {
-    font-size: 1rem; /* Tamaño de fuente */
-    font-weight: 600; /* Peso de la fuente */
-    color: #333; /* Color del texto */
-  }
-  
-  /* Título principal */
-  h1 {
-    font-family: 'Arial', sans-serif; /* Tipografía moderna */
-    color: #007bff; /* Color azul */
-    margin-bottom: 20px; /* Margen inferior */
-    text-align: center; /* Centrar texto */
-  }
-  
-  /* Estilo para el contenedor de cada lista */
-  .lista-container {
-    margin-bottom: 30px; /* Espaciado entre listas */
-  }
-  .usuario-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .lista-container {
-    margin: 20px;
-  }
-  
-  .registro-container {
-    display: flex;
-    justify-content: space-around;
-    width: 100%;
-    margin-top: 20px;
-  }
-  
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.listas-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.lista-container {
+  flex: 1;
+  margin: 0 10px;
+}
+
+.usuario-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.usuario-item {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin: 5px 0;
+  transition: background-color 0.3s;
+  background-color: #ffffff;
+}
+
+.usuario-item:hover {
+  background-color: #e6f7ff;
+}
+
+.usuario-imagen {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.usuario-nombre {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+h1 {
+  font-family: 'Arial', sans-serif;
+  color: #007bff;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.registro-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  margin-top: 20px;
+}
+h2 {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  margin-bottom: 10px;
+  text-align: center;
+}

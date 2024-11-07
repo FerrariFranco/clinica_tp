@@ -6,8 +6,11 @@
     <form (ngSubmit)="onLogin()" class="login-form">
       <h2>Iniciar Sesión</h2>
       
-      <!-- Botones para autocompletar -->
-      <div class="preset-buttons">
+      <button type="button" (click)="toggleFavoriteButtons()" class="fav-button">
+        Favoritos
+      </button>
+      
+      <div *ngIf="showFavoriteButtons" class="favorite-buttons">
         <button type="button" (click)="fillCredentials('admin')" class="preset-button">
           Admin
         </button>
