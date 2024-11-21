@@ -17,13 +17,17 @@ export class UsuariosComponent implements OnInit {
   especialistasNoAutorizados: any[] = [];
   pacientes: any[] = [];
   loading = true;
+  usuarioSeleccionado: any = null; 
+  componenteActivo: string | null = null; // Estado para el componente activo
 
   constructor(private firestore: Firestore) {}
 
   ngOnInit() {
     this.loadUsers();
   }
-
+  mostrarComponente(componente: string) {
+    this.componenteActivo = this.componenteActivo === componente ? null : componente;
+  }
   async loadUsers() {
     try {
       const especialistasRef = collection(this.firestore, 'especialistas');
@@ -57,5 +61,13 @@ export class UsuariosComponent implements OnInit {
     } catch (error) {
       console.error('Error al autorizar especialista:', error);
     }
+  }
+
+  seleccionarUsuario(usuario: any) {
+    this.usuarioSeleccionado = usuario;
+  }
+
+  cerrarCard() {
+    this.usuarioSeleccionado = null;
   }
 }

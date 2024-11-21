@@ -15,18 +15,26 @@ export class NavbarComponent {
   @Input() userRole: string | null = null;
   user: any = null;
   isAdmin: boolean = false; // Variable para verificar si el usuario es admin
+  isEspecialista: boolean = false; // Variable para verificar si el usuario es especialista
+  isPaciente: boolean = false; // Variable para verificar si el usuario es paciente
 
   constructor(private authService: AuthService, private router: Router) {
     this.authService.user$.subscribe((user) => {
       this.user = user;
 
-      // Verificar si el usuario tiene rol admin
+      // Verificar si el usuario tiene rol asignado
       if (user) {
         this.authService.getUserRole().subscribe(role => {
-          this.isAdmin = role === 'admin'; // Ajusta esto según el nombre exacto de tu rol
+          // Lógica para verificar el rol del usuario
+          this.isAdmin = role === 'admin';
+          this.isEspecialista = role === 'especialista';  // Ajusta esto según el nombre exacto de tu rol
+          this.isPaciente = role === 'paciente';  // Ajusta esto según el nombre exacto de tu rol
         });
       } else {
-        this.isAdmin = false; // Si no hay usuario, no es admin
+        // Si no hay usuario, no es admin, especialista ni paciente
+        this.isAdmin = false;
+        this.isEspecialista = false;
+        this.isPaciente = false;
       }
     });
   }

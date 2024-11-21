@@ -1,0 +1,95 @@
+<div class="mis-turnos">
+  <h2>Mis Turnos</h2>
+
+  <!-- Inputs de texto para filtrar -->
+  <div class="filtros">
+    <label>
+      Buscar por especialidad:
+      <input
+        type="text"
+        [(ngModel)]="filtroEspecialidad"
+        (input)="aplicarFiltros()"
+        placeholder="Escribe una especialidad"
+      />
+    </label>
+    <label>
+      Buscar por especialista:
+      <input
+        type="text"
+        [(ngModel)]="filtroEspecialista"
+        (input)="aplicarFiltros()"
+        placeholder="Escribe un especialista"
+      />
+    </label>
+    <label>
+      Buscar por historia clínica:
+      <input
+        type="text"
+        [(ngModel)]="filtroHistoriaClinica"
+        (input)="aplicarFiltros()"
+        placeholder="Escribe un texto de la historia clínica"
+      />
+    </label>
+  </div>
+
+  <!-- Lista de turnos -->
+  <div *ngIf="turnosFiltrados.length > 0; else sinTurnos">
+    <ul class="lista-turnos">
+      <li
+        *ngFor="let turno of turnosFiltrados; let i = index"
+        class="turno-item"
+        [class.seleccionado]="turno.seleccionado"
+        (click)="seleccionarTurno(i)"
+      >
+        <strong>Fecha:</strong> {{ turno.fecha | date: 'yyyy-MM-dd' }}<br />
+        <strong>Horario:</strong> {{ turno.hora }}<br />
+        <strong>Especialidad:</strong> {{ turno.especialidad }}<br />
+        <strong>Especialista:</strong> {{ turno.especialista }}<br />
+        <strong>Estado:</strong> {{ turno.estado }}
+      </li>
+    </ul>
+  </div>
+
+  <ng-template #sinTurnos>
+    <p>No se encontraron turnos.</p>
+  </ng-template>
+
+  <!-- Turno Seleccionado -->
+  <div *ngIf="turnoSeleccionado" class="turno-seleccionado">
+    <h3>Turno Seleccionado:</h3>
+    <p><strong>Especialista:</strong> {{ turnoSeleccionado.especialista }}</p>
+    <p><strong>Fecha:</strong> {{ turnoSeleccionado.fecha }}</p>
+    <p><strong>Horario:</strong> {{ turnoSeleccionado.hora }}</p>
+    <p><strong>Estado:</strong> {{ turnoSeleccionado.estado }}</p>
+
+    <!-- Botón para calificar atención -->
+    <button *ngIf="turnoSeleccionado.estado === 'Finalizado'" (click)="mostrarCalificarAtencion()">
+      Calificar Atención
+    </button>
+
+    <!-- Botón para cancelar turno -->
+    <button
+      *ngIf="turnoSeleccionado.estado === 'Solicitado' || turnoSeleccionado.estado === 'Aceptado'"
+      (click)="cancelarTurnoSeleccionado()"
+    >
+      Cancelar Turno
+    </button>
+  </div>
+
+  <!-- Calificación -->
+  <div *ngIf="mostrarCalificar" class="calificacion-container">
+    <textarea
+      [(ngModel)]="comentario"
+      rows="4"
+      placeholder="Escribe tu comentario sobre la atención..."
+    ></textarea>
+    <label>
+      Calificación:
+      <select [(ngModel)]="calificacion">
+        <option [value]="null" disabled>Seleccione</option>
+        <option *ngFor="let i of [1, 2, 3, 4, 5]" [value]="i">{{ i }} estrellas</option>
+      </select>
+    </label>
+    <button (click)="guardarCalificacion()">Guardar</button>
+  </div>
+</div>

@@ -1,0 +1,182 @@
+.mis-turnos {
+  padding: 20px;
+  background-color: #f4f7fb;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  text-align: center;
+  color: #3498db;
+  margin-bottom: 20px;
+}
+
+.filtros {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.filtros label {
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.filtros input,
+.filtros select {
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+.filtros input:focus,
+.filtros select:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+.lista-turnos {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.turno-item {
+  padding: 15px;
+  margin-bottom: 10px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.turno-item:hover {
+  background-color: #f0f0f0;
+}
+
+.turno-item.seleccionado {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.turno-item strong {
+  font-weight: bold;
+}
+
+.turno-seleccionado {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  margin-top: 30px;
+}
+
+.turno-seleccionado h3 {
+  color: #3498db;
+}
+
+.botones-acciones {
+  margin-top: 20px;
+}
+
+.botones-acciones button {
+  padding: 10px 20px;
+  margin-right: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.botones-acciones button:hover {
+  background-color: #3498db;
+  color: #fff;
+}
+
+.botones-acciones button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}
+
+.resena-container {
+  margin-top: 30px;
+  background-color: #f7f8fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.resena-container h4 {
+  color: #333;
+}
+
+.resena-container input,
+.resena-container textarea {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+.resena-container input:focus,
+.resena-container textarea:focus {
+  border-color: #3498db;
+  outline: none;
+}
+
+textarea {
+  resize: vertical;
+}
+
+button:focus {
+  outline: none;
+}
+
+.historia-clinica {
+  margin-top: 30px;
+  background-color: #f7f8fa;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.historia-clinica h3,
+.historia-clinica h4 {
+  color: #3498db;
+}
+
+.historia-clinica p {
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.historia-clinica ul {
+  padding: 0;
+  list-style-type: none;
+}
+
+.historia-clinica ul li {
+  padding: 5px 0;
+}
+
+.historia-clinica ul li strong {
+  font-weight: bold;
+}
+
+.sin-datos-dinamicos {
+  color: #777;
+  font-style: italic;
+}
+
+button:disabled {
+  background-color: #e0e0e0;
+  cursor: not-allowed;
+}

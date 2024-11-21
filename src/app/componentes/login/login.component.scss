@@ -50,47 +50,104 @@
       background-color: #2c8cd6;
     }
   }
-.preset-buttons {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
-}
-
-.preset-button {
-  flex: 1;
-  margin: 0 5px;
-  padding: 8px;
-  background-color: #ddd;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 0.9em;
-  color: #333;
-  transition: background-color 0.3s ease;
-}
-
-.preset-button:hover {
-  background-color: #ccc;
-}
-.fav-button {
-  margin-bottom: 15px;
-  padding: 10px;
-  background-color: #3498db;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #2c8cd6;
+  .fav-buttons-container {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
   }
-}
+  
+  .fav-button {
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+  
+    &:hover {
+      background-color: #2c8cd6;
+    }
+  }
+  
+  .favorite-buttons {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    animation: fade-in 0.5s ease-in-out;
+  }
+  
+  .preset-button {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 0.9em;
+    color: #333;
+  
+    &:hover {
+      background-color: #e0e0e0;
+    }
+  
+    .profile-image {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+  }
+  
+  .animate-fade-in {
+    animation: fade-in 0.5s ease;
+  }
+  
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
-.favorite-buttons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 15px;
-}
+  .fav-buttons-container {
+    position: fixed; /* El botón flotará siempre en la misma posición */
+    bottom: 20px; /* A 20px del borde inferior */
+    left: 20px; /* A 20px del borde izquierdo */
+    z-index: 1000; /* Asegurarse de que esté por encima de otros elementos */
+  }
+  
+  .fav-button {
+    padding: 10px;
+    background-color: #3498db;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    
+    &:hover {
+      background-color: #2c8cd6;
+      transform: scale(1.1); /* Animación sutil al pasar el mouse */
+    }
+  }
+  
+  
+  button.profile-selected {
+    background-color: #3498db;
+    color: #fff;
+    border-color: #2980b9;
+    transform: scale(1.1);  // Aumentar tamaño del perfil seleccionado
+  }

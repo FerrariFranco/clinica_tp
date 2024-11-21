@@ -15,7 +15,6 @@ export class RecaptchaDirective {
     this.setupCaptchaUI();
   }
 
-  // Genera una nueva palabra de captcha
   private generateCaptchaWord(): string {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     return Array.from({ length: 6 })
@@ -40,18 +39,27 @@ export class RecaptchaDirective {
     this.captchaWord = this.generateCaptchaWord();
     this.renderer.setProperty(captchaText, 'innerText', this.captchaWord);
     this.renderer.appendChild(container, captchaText);
-
     this.inputEl = this.renderer.createElement('input');
     this.renderer.setAttribute(this.inputEl, 'type', 'text');
     this.renderer.setStyle(this.inputEl, 'width', '100%');
     this.renderer.setStyle(this.inputEl, 'marginBottom', '10px');
     this.renderer.appendChild(container, this.inputEl);
-
+    
     const refreshButton = this.renderer.createElement('button');
     this.renderer.setProperty(refreshButton, 'innerText', 'Nueva palabra');
     this.renderer.listen(refreshButton, 'click', () => this.refreshCaptcha(captchaText));
     this.renderer.appendChild(container, refreshButton);
-
+    
+    this.renderer.listen(captchaText, 'copy', (event: ClipboardEvent) => {
+      event.preventDefault();
+      const clipboardData = event.clipboardData; 
+      if (clipboardData) {
+        clipboardData.setData('text/plain', 'No podes copiar esto papu');
+      }
+    });
+    this.renderer.listen(captchaText, 'dragstart', (event: DragEvent) => {
+      event.preventDefault();
+    });
     this.renderer.appendChild(this.el.nativeElement, container);
   }
 

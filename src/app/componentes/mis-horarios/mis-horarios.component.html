@@ -1,35 +1,60 @@
-<form [formGroup]="horariosForm">
+<form [formGroup]="horariosForm" class="horarios-form">
   <div class="mis-horarios">
-    <h2>Selecciona tus días y horarios</h2>
+    <h2 class="form-titulo">Selecciona tus días y horarios</h2>
 
-    <div class="dias">
-      <h3>Días de la Semana</h3>
-      <div *ngFor="let dia of dias">
-        <label>
-          <input type="checkbox" (change)="onDiaSeleccionado(dia)" />
-          {{ dia }}
-        </label>
-      </div>
-    </div>
+    <form [formGroup]="horariosForm" class="horarios-form">
+      <div class="mis-horarios">
+        <h2 class="form-titulo">Selecciona tus días y horarios</h2>
+    
+        <div class="dias">
+          <h3 class="seccion-titulo">Días de la Semana</h3>
+          <div *ngFor="let dia of dias" class="dia-checkbox">
+            <label>
+              <input type="checkbox" (change)="onDiaSeleccionado(dia)" appSeleccionDia />
+
+              {{ dia }}
+            </label>
+          </div>
+        </div>
 
     <div class="horario">
-      <h3>Rango Horario</h3>
-      <label for="horaInicio">Hora de Inicio:</label>
-      <input type="time" id="horaInicio" formControlName="horaInicio" step="1800" />
+      <h3 class="seccion-titulo">Rango Horario</h3>
+      <label for="horaInicio" class="label">Hora de Inicio:</label>
+      <input
+        type="time"
+        id="horaInicio"
+        formControlName="horaInicio"
+        step="1800"
+        class="input-time"
+      />
 
-      <label for="horaFin">Hora de Fin:</label>
-      <input type="time" id="horaFin" formControlName="horaFin" step="1800" />
+      <label for="horaFin" class="label">Hora de Fin:</label>
+      <input
+        type="time"
+        id="horaFin"
+        formControlName="horaFin"
+        step="1800"
+        class="input-time"
+      />
     </div>
 
     <div class="especialidad">
-      <h3>Selecciona tu Especialidad</h3>
-      <select formControlName="especialidad" (change)="onEspecialidadSeleccionada($event)">
-        <option *ngFor="let especialidad of especialidades" [value]="especialidad">
+      <h3 class="seccion-titulo">Selecciona tu Especialidad</h3>
+      <select
+        formControlName="especialidad"
+        (change)="onEspecialidadSeleccionada($event)"
+        class="select-especialidad"
+      >
+        <option
+          *ngFor="let especialidad of especialidades"
+          [value]="especialidad"
+        >
           {{ especialidad }}
         </option>
       </select>
     </div>
 
-    <button (click)="generarTurnosDisponibles()">Guardar</button>
+    <button class="form-boton" (click)="generarTurnosDisponibles()">Guardar</button>
+
   </div>
 </form>

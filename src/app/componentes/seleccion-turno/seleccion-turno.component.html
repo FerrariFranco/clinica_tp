@@ -1,48 +1,64 @@
 <div>
-    <h2>Seleccionar Turno</h2>
+  <h2>Seleccionar Turno</h2>
 
-    <!-- Tabla de Especialidades -->
-    <table>
-      <thead>
-        <tr>
-          <th>Especialidades</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let especialidad of especialidadesList" 
-            [class.selected]="especialidad === selectedEspecialidad" 
-            (click)="onEspecialidadSelect(especialidad)">
-          <td>{{ especialidad }}</td>
-        </tr>
-      </tbody>
-    </table>
+  <!-- Lista de Especialistas -->
+  <div>
+    <h3>Especialistas</h3>
+    <div class="especialistas-container">
+      <div *ngFor="let especialista of especialistasList" 
+           class="especialista-button"
+           [class.selected]="especialista === selectedEspecialista"
+           (click)="onEspecialistaSelect(especialista)">
+        <img [src]="especialista.imagenUrl" alt="{{ especialista.nombre }}" class="especialista-imagen"/>
+        <p>{{ especialista.nombre }} {{ especialista.apellido }}</p>
+      </div>
+    </div>
+  </div>
 
-    <!-- Especialistas Autorizados -->
-    <div *ngIf="especialistasAutorizados.length > 0">
-      <h3>Especialistas Autorizados en {{ selectedEspecialidad }}</h3>
-      <ul>
-        <li *ngFor="let especialista of especialistasAutorizados" 
-            [class.selected]="especialista === selectedEspecialista" 
-            (click)="onEspecialistaSelect(especialista)">
-          {{ especialista.nombre }} {{ especialista.apellido }}
-        </li>
-      </ul>
+  <!-- Especialidades del Especialista Seleccionado -->
+  <div *ngIf="especialidadesFiltrada.length > 0">
+    <h3>Especialidades de {{ selectedEspecialista?.nombre }} {{ selectedEspecialista?.apellido }}</h3>
+    <div class="especialidades-container">
+      <div *ngFor="let especialidad of especialidadesFiltrada"
+           class="especialidad-button"
+           [class.selected]="especialidad.nombre === selectedEspecialidad"
+           (click)="onEspecialidadSelect(especialidad.nombre)">
+        <img [src]="especialidad.imagen" alt="{{ especialidad.nombre }}" class="especialidad-imagen"/>
+        <p>{{ especialidad.nombre }}</p>
+      </div>
     </div>
+  </div>
 
-    <div *ngIf="turnosDisponibles.length > 0">
-      <h3>Turnos Disponibles para {{ selectedEspecialista?.nombre }} {{ selectedEspecialista?.apellido }}</h3>
-      <ul>
-        <li *ngFor="let turno of turnosDisponibles" 
-            [class.selected]="turno === selectedTurno" 
-            (click)="selectTurno(turno)">
-          {{ turno.fecha }} - {{ turno.hora }}
-        </li>
-      </ul>
+  <!-- Turnos Disponibles -->
+  <div *ngIf="turnosDisponibles.length > 0">
+    <h3>Turnos Disponibles para {{ selectedEspecialista?.nombre }} en {{ selectedEspecialidad }}</h3>
+    <div class="dias-container">
+      <!-- Recorremos el array de objetos de turnos -->
+      <div *ngFor="let turno of turnosDisponibles">
+        <div class="turno-button"
+             [class.selected]="turno.fecha === selectedTurno?.fecha"
+             (click)="selectTurno(turno)">
+          {{ turno.fecha }} <!-- Formato: 2021-09-09 -->
+        </div>
+
+        <!-- Horarios disponibles para ese turno -->
+        <div *ngIf="turno.fecha === selectedTurno?.fecha">
+          <h4>Horarios Disponibles para {{ turno.fecha }}</h4>
+          <div class="horarios-container">
+            <div *ngFor="let hora of turno.horarios" 
+                 class="hora-button" 
+                 [class.selected]="hora === selectedTurno?.hora" 
+                 (click)="selectTurnoHora(hora)">
+              {{ hora }} <!-- Formato: 13:15 -->
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    
-    <div *ngIf="selectedEspecialista && isEmpty(turnosDisponibles)">
-      <p>No hay turnos disponibles en la agenda.</p>
-    </div>
-    <button class="solicitar-turno" (click)="onSolicitarTurno()">Solicitar Turno</button>
-    
+  </div>
+
+  <!-- Botón para Solicitar Turno -->
+  <button class="solicitar-turno" 
+          [disabled]="!selectedTurno?.hora" 
+          (click)="onSolicitarTurno()">Solicitar Turno</button>
 </div>

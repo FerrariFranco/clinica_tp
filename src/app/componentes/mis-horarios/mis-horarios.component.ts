@@ -1,23 +1,27 @@
 import { CommonModule } from '@angular/common';
-import { Component, NgModule, OnInit } from '@angular/core';
+import { Component, NgModule, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, NgModel, ReactiveFormsModule } from '@angular/forms';
 import { Firestore, collection, query, where, getDocs, addDoc, updateDoc, doc } from '@angular/fire/firestore';
-import { AuthService } from '../../servicios/auth.service'; // Asegúrate de tener un servicio de autenticación para obtener el usuario logueado
+import { AuthService } from '../../servicios/auth.service'; 
+import { firstValueFrom } from 'rxjs';
+import { SeleccionDiaDirective } from '../../directivas/seleccion-dia.directive';
 
 @Component({
   selector: 'app-mis-horarios',
   templateUrl: './mis-horarios.component.html',
   styleUrls: ['./mis-horarios.component.scss'],
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule]
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, SeleccionDiaDirective]
 })
+
 export class MisHorariosComponent implements OnInit {
+
   horariosForm: FormGroup;
-  dias: string[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+  dias: string[] = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
   diasSeleccionados: string[] = [];
-  turnos: any[] = []; // Array para almacenar la lista de turnos generados
-  especialidades: string[] = []; // Array para almacenar las especialidades del especialista
-  especialidadSeleccionada: string = ''; // Variable para la especialidad seleccionada por el usuario
+  turnos: any[] = []; 
+  especialidades: string[] = [];
+  especialidadSeleccionada: string = '';
 
   constructor(
     private fb: FormBuilder,
@@ -26,21 +30,19 @@ export class MisHorariosComponent implements OnInit {
   ) {
     this.horariosForm = this.fb.group({
       dias: [[]],
-      horaInicio: ['08:00'], 
-      horaFin: ['19:00'] 
+      horaInicio: ['08:00'],
+      horaFin: ['19:00']
     });
   }
 
   ngOnInit(): void {
     this.obtenerEspecialidades();
-    
   }
 
   async obtenerEspecialidades() {
     this.authService.getCurrentUser().subscribe(user => {
       if (user) {
         const mailEspecialista = user.email;
-  
         
         const especialistasRef = collection(this.firestore, 'especialistas');
         const q = query(especialistasRef, where('mail', '==', mailEspecialista));
@@ -50,11 +52,10 @@ export class MisHorariosComponent implements OnInit {
             console.error('No se encontró el especialista');
             return;
           }
-  
+
           querySnapshot.forEach(doc => {
             const data = doc.data();
             console.log('Especialista encontrado:', data); 
-  
             this.especialidades = data['especialidades'] || [];
             console.log('Especialidades:', this.especialidades); 
           });
@@ -74,53 +75,92 @@ export class MisHorariosComponent implements OnInit {
     }
     this.horariosForm.patchValue({ dias: this.diasSeleccionados });
   }
+
   onEspecialidadSeleccionada(event: Event): void {
-    const selectElement = event.target as HTMLSelectElement; // Cast al tipo correcto
-    this.especialidadSeleccionada = selectElement.value;  // Obtener el valor seleccionado
+    const selectElement = event.target as HTMLSelectElement; 
+    this.especialidadSeleccionada = selectElement.value;  
   }
-  generarTurnosDisponibles(): void {
+
+  async generarTurnosDisponibles(): Promise<void> {
     const horaInicio = this.horariosForm.value.horaInicio;
     const horaFin = this.horariosForm.value.horaFin;
-    const minutosIntervalo = 30; // Intervalo de media hora
-    const ahora = new Date(); // Fecha actual
-    const diasAdelante = 30; // Generar turnos para los próximos 30 días
+    const minutosIntervalo = 30; // Intervalo de 30 minutos entre turnos
+    const ahora = new Date();
+    const diasAdelante = 30;
 
-    this.turnos = []; // Limpiar la lista de turnos antes de generar nuevos
+    this.turnos = []; // Reseteamos el array de turnos
+  
+    const usuario = await firstValueFrom(this.authService.getCurrentUser());
+    if (!usuario) return;
+    console.log("xd", usuario);
+    
 
-    this.authService.getCurrentUser().subscribe(user => {
-      if (user) {
-        const mailEspecialista = user.email;
-
-        for (let dia = 0; dia < diasAdelante; dia++) {
-          const fecha = new Date(ahora);
-          fecha.setDate(ahora.getDate() + dia);
-
-          const diaSemana = this.dias[fecha.getDay() - 1];
-          if (this.diasSeleccionados.includes(diaSemana)) {
-            let horaActual = new Date(fecha);
-            horaActual.setHours(Number(horaInicio.split(':')[0]));
-            horaActual.setMinutes(Number(horaInicio.split(':')[1]));
-
-            let horaLimite = new Date(fecha);
-            horaLimite.setHours(Number(horaFin.split(':')[0]));
-            horaLimite.setMinutes(Number(horaFin.split(':')[1]));
-
-            while (horaActual < horaLimite) {
-              this.turnos.push({
-                fecha: new Date(horaActual),
-
-              });
-
-              horaActual.setMinutes(horaActual.getMinutes() + minutosIntervalo);
-            }
-          }
-        }
-
-        this.guardarTurnosEnFirestore(mailEspecialista, this.turnos, this.especialidadSeleccionada);
+    
+    const mailEspecialista = usuario.email;
+  
+    // Obtener turnos ya existentes
+    const agendasRef = collection(this.firestore, 'agendas');
+    const q = query(agendasRef, where('mailEspecialista', '==', mailEspecialista));
+    const querySnapshot = await getDocs(q);
+  
+    const turnosExistentes: { fecha: string; horarios: string[] }[] = [];
+    querySnapshot.forEach(docSnapshot => {
+      const data = docSnapshot.data();
+      if (data['especialidad'] !== this.especialidadSeleccionada) {
+        turnosExistentes.push(...data['turnos']);
       }
     });
-  }
+  
+    let nuevosTurnos: { fecha: string; horarios: string[] }[] = [];
+    for (let dia = 0; dia < diasAdelante; dia++) {
+      const fecha = new Date(ahora);
+      fecha.setDate(ahora.getDate() + dia);
+  
+      const diaSemana = this.dias[fecha.getDay() - 1];
+      if (this.diasSeleccionados.includes(diaSemana)) {
+        let horaActual = new Date(fecha);
+        horaActual.setHours(Number(horaInicio.split(':')[0]));
+        horaActual.setMinutes(Number(horaInicio.split(':')[1]));
+  
+        let horaLimite = new Date(fecha);
+        horaLimite.setHours(Number(horaFin.split(':')[0]));
+        horaLimite.setMinutes(Number(horaFin.split(':')[1]));
+  
+        const fechaKey = fecha.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+        let horarios: string[] = [];
 
+  
+        while (horaActual < horaLimite) {
+          const horario = `${horaActual.getHours()}:${horaActual.getMinutes() < 10 ? '0' : ''}${horaActual.getMinutes()}`;
+  
+          // Validar si el horario no se solapa
+          const yaOcupado = turnosExistentes.some(t => 
+            t.fecha === fechaKey && t.horarios.includes(horario)
+          );
+          if (!yaOcupado) {
+    
+            horarios.push(horario);
+          }
+  
+          horaActual.setMinutes(horaActual.getMinutes() + minutosIntervalo);
+        }
+
+        if (horarios.length > 0) {
+          nuevosTurnos.push({ fecha: fechaKey, horarios });
+        }
+      }
+    }
+  
+    if (nuevosTurnos.length === 0) {
+      console.error('Todos los horarios seleccionados se solapan con los existentes.');
+      return;
+    }
+  
+    this.turnos = nuevosTurnos;
+    await this.guardarTurnosEnFirestore(mailEspecialista, nuevosTurnos, this.especialidadSeleccionada);
+  }
+  
+  
   async guardarTurnosEnFirestore(
     mailEspecialista: string | null,
     turnos: any[],
@@ -134,14 +174,13 @@ export class MisHorariosComponent implements OnInit {
   
       if (!querySnapshot.empty) {
         querySnapshot.forEach(async (docSnapshot) => {
-          const docRef = doc(this.firestore, 'agendas', docSnapshot.id); // Obtener la referencia del documento
+          const docRef = doc(this.firestore, 'agendas', docSnapshot.id); 
           await updateDoc(docRef, {
-            turnos: turnos // Actualizamos solo el campo de los turnos
+            turnos: turnos 
           });
           console.log('Agenda actualizada exitosamente.');
         });
       } else {
-        // Si no existe, creamos una nueva agenda
         const turnosRef = collection(this.firestore, 'agendas');
         await addDoc(turnosRef, {
           mailEspecialista: mailEspecialista,
@@ -154,4 +193,5 @@ export class MisHorariosComponent implements OnInit {
       console.error('Error al guardar o actualizar los turnos en Firestore:', error);
     }
   }
+  
 }

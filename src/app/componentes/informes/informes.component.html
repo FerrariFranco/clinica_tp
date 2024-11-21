@@ -1,0 +1,78 @@
+<!-- Indicador de carga -->
+<div *ngIf="loading" class="loading">Cargando datos...</div>
+
+<!-- Botón para mostrar/ocultar los logs -->
+<button (click)="toggleLogs()">
+  {{ mostrarLogs ? 'Ocultar Logs' : 'Mostrar Logs' }}
+</button>
+
+<!-- Logs de ingreso -->
+<div *ngIf="!loading && mostrarLogs">
+  <h2>Logs de Ingreso</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Usuario</th>
+        <th>Hora</th>
+        <th>Cantidad de accesos</th>
+      </tr>
+    </thead>
+    <tbody>
+      <ng-container *ngFor="let fecha of logsPorDia | keyvalue">
+       
+        <ng-container *ngFor="let usuario of fecha.value | keyvalue">
+          <tr>
+            <td>{{ usuario.key }}</td>
+            <td>
+              <ul>
+                <li *ngFor="let registro of usuario.value">
+                  {{ registro.hora | date: 'short' }}
+                </li>
+              </ul>
+            </td>
+            <td>{{ usuario.value.length }}</td>
+          </tr>
+        </ng-container>
+      </ng-container>
+    </tbody>
+  </table>
+</div>
+
+<!-- Contenedor de los gráficos (2 por fila) -->
+<div class="grafico-row">
+  <!-- Primer par de gráficos y botones -->
+  <div class="grafico-container">
+    <canvas id="graficoTurnos"></canvas>
+    <div class="descarga-buttons">
+      <button (click)="downloadExcel('graficoTurnos')">Descargar Excel</button>
+      <button (click)="downloadPdf('graficoTurnos')">Descargar PDF</button>
+    </div>
+  </div>
+
+  <!-- Segundo par de gráficos y botones -->
+  <div class="grafico-container">
+    <canvas id="graficoTurnosFecha"></canvas>
+    <div class="descarga-buttons">
+      <button (click)="downloadExcel('graficoTurnosFecha')">Descargar Excel</button>
+      <button (click)="downloadPdf('graficoTurnosFecha')">Descargar PDF</button>
+    </div>
+  </div>
+
+  <!-- Tercer par de gráficos y botones -->
+  <div class="grafico-container">
+    <canvas id="graficoTurnosMedico"></canvas>
+    <div class="descarga-buttons">
+      <button (click)="downloadExcel('graficoTurnosMedico')">Descargar Excel</button>
+      <button (click)="downloadPdf('graficoTurnosMedico')">Descargar PDF</button>
+    </div>
+  </div>
+
+  <!-- Cuarto par de gráficos y botones -->
+  <div class="grafico-container">
+    <canvas id="graficoTurnosFinalizadosMedico"></canvas>
+    <div class="descarga-buttons">
+      <button (click)="downloadExcel('graficoTurnosFinalizadosMedico')">Descargar Excel</button>
+      <button (click)="downloadPdf('graficoTurnosFinalizadosMedico')">Descargar PDF</button>
+    </div>
+  </div>
+</div>

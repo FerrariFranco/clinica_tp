@@ -5,21 +5,24 @@
   <div class="login-container">
     <form (ngSubmit)="onLogin()" class="login-form">
       <h2>Iniciar Sesión</h2>
-      
-      <button type="button" (click)="toggleFavoriteButtons()" class="fav-button">
-        Favoritos
-      </button>
-      
-      <div *ngIf="showFavoriteButtons" class="favorite-buttons">
-        <button type="button" (click)="fillCredentials('admin')" class="preset-button">
-          Admin
+
+      <div class="fav-buttons-container">
+        <button type="button" (click)="toggleFavoriteButtons()" class="fav-button">
+          ⚙️ Acceso Rápido
         </button>
-        <button type="button" (click)="fillCredentials('especialista')" class="preset-button">
-          Especialista
-        </button>
-        <button type="button" (click)="fillCredentials('paciente')" class="preset-button">
-          Paciente
-        </button>
+
+        <div *ngIf="showFavoriteButtons" class="favorite-buttons animate-fade-in">
+          <button
+            *ngFor="let user of favoriteUsers"
+            type="button"
+            (click)="fillCredentials(user.role)"
+            class="preset-button"
+            appProfileDirective
+          >
+            <img [src]="user.image" alt="Profile" class="profile-image" />
+            {{ user.role }}
+          </button>
+        </div>
       </div>
 
       <input

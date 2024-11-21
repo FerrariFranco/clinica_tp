@@ -1,62 +1,74 @@
-/* Contenedor general del formulario */
 .formulario-container {
-    max-width: 500px; /* Ancho máximo del formulario */
-    margin: 20px auto; /* Centrar el formulario horizontalmente */
-    padding: 20px; /* Espaciado interno */
-    background-color: #fff; /* Color de fondo blanco */
-    border-radius: 8px; /* Bordes redondeados */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+  font-family: 'Arial', sans-serif;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+  form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    
+    label {
+      display: flex;
+      flex-direction: column;
+      font-weight: bold;
+      color: #555;
+
+      input {
+        margin-top: 5px;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        outline: none;
+        transition: border-color 0.3s;
+
+        &:focus {
+          border-color: #007bff;
+        }
+      }
+    }
+
+    /* Inputs que ocupan toda la fila */
+    label:nth-child(odd):last-child,
+    label:nth-child(even):last-child {
+      grid-column: 1 / -1;
+    }
+
+    div[appRecaptcha] {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
+
+    button {
+      grid-column: 1 / -1;
+      justify-self: center;
+      padding: 10px 15px;
+      font-size: 16px;
+      color: white;
+      background-color: #007bff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+
+      &:hover {
+        background-color: #0056b3;
+      }
+
+      &:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+    }
+
+    app-spinner {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
   }
-  
-  /* Estilo para cada etiqueta */
-  label {
-    display: block; /* Mostrar etiquetas como bloques */
-    margin-bottom: 10px; /* Espaciado inferior */
-    font-weight: bold; /* Negrita para las etiquetas */
-    color: #333; /* Color del texto */
-  }
-  
-  /* Estilo para los inputs */
-  input[type="text"],
-  input[type="number"],
-  input[type="email"],
-  input[type="password"],
-  select {
-    width: 100%; /* Ancho completo */
-    padding: 10px; /* Espaciado interno */
-    border: 1px solid #ccc; /* Borde gris claro */
-    border-radius: 4px; /* Bordes redondeados */
-    margin-bottom: 15px; /* Espaciado inferior */
-    transition: border-color 0.3s; /* Transición de color del borde */
-  }
-  
-  /* Estilo al enfocar en los inputs */
-  input:focus,
-  select:focus {
-    border-color: #007bff; /* Color del borde al enfocar */
-    outline: none; /* Eliminar el borde por defecto */
-  }
-  
-  /* Estilo para el botón de enviar */
-  button[type="submit"] {
-    background-color: #007bff; /* Color de fondo azul */
-    color: white; /* Color del texto */
-    padding: 10px 15px; /* Espaciado interno */
-    border: none; /* Sin borde */
-    border-radius: 4px; /* Bordes redondeados */
-    cursor: pointer; /* Cursor de puntero */
-    font-size: 16px; /* Tamaño de fuente */
-    transition: background-color 0.3s; /* Transición de fondo */
-  }
-  
-  /* Estilo al pasar el mouse sobre el botón */
-  button[type="submit"]:hover {
-    background-color: #0056b3; /* Color de fondo más oscuro al pasar el mouse */
-  }
-  
-  /* Estilo para el spinner */
-  app-spinner {
-    display: block; /* Mostrar el spinner como bloque */
-    margin: 10px auto; /* Centrar el spinner */
-  }
-  
+}

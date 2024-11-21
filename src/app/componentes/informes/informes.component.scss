@@ -1,0 +1,139 @@
+/* Estilo global para el contenedor del componente */
+:host {
+    display: block;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin: 20px;
+}
+
+/* Estilo para los gráficos */
+.grafico-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-between;
+}
+
+.grafico-container {
+    width: calc(50% - 10px); /* Ajusta el ancho a la mitad con espacio entre los gráficos */
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+    box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
+}
+
+.grafico-container canvas {
+    width: 100%;
+    height: auto;
+}
+
+/* Estilo para el resto del componente */
+button {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border: 1px solid #ddd;
+}
+
+th {
+    background-color: #2a3d66;
+    color: white;
+    padding: 10px;
+    text-align: left;
+}
+
+td {
+    padding: 10px;
+    border: 1px solid #ddd;
+}
+
+td[colspan="4"] {
+    background-color: #f4f4f4;
+    font-weight: bold;
+    text-align: center;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li {
+    margin: 5px 0;
+    padding: 5px;
+    background-color: #eef0f6;
+    border-radius: 4px;
+}
+
+.loading {
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+    margin-top: 50px;
+}
+
+h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+/* Estilo para los contenedores de gráficos */
+.grafico-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: space-around; /* Para que los gráficos se distribuyan bien */
+  }
+  
+  /* Estilo para cada contenedor de gráfico */
+  .grafico-container {
+    width: 48%; /* Asegura que los gráficos se alineen dos por fila */
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    text-align: center;
+    box-sizing: border-box;
+  }
+  
+  /* Estilo para los botones de descarga */
+  .descarga-buttons {
+    margin-top: 10px;
+    display: flex;
+    gap: 10px;
+    justify-content: center; /* Centra los botones */
+  }
+  
+  button {
+    background-color: #007bff;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  button:hover {
+    background-color: #0056b3;
+  }
+  

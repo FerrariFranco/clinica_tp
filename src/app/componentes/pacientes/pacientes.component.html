@@ -1,0 +1,23 @@
+<div class="pacientes-container">
+  <div *ngFor="let paciente of pacientes" class="paciente-card">
+    <div class="paciente-header">
+      <h3>{{ paciente.nombre }} {{ paciente.apellido }}</h3>
+      
+    </div>
+    
+    <div class="paciente-details">
+
+      <p><strong>Edad:</strong> {{ paciente.edad }}</p>
+      <p><strong>Email:</strong> {{ paciente.mail }}</p>
+      <p><strong>Obra Social:</strong> {{ paciente.obraSocial }}</p>
+    </div>
+    
+    <div class="paciente-image">
+      <img *ngIf="paciente.imagen1Url" [src]="paciente.imagen1Url" alt="Imagen del paciente" class="paciente-imagen" />
+    </div>
+    
+    <div class="paciente-actions">
+      <button (click)="descargarHistoriasClinicas(paciente.mail)">Descargar historias clínicas</button>
+    </div>
+  </div>
+</div>

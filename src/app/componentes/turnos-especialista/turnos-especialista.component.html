@@ -1,0 +1,133 @@
+<div class="mis-turnos">
+  <h2>Turnos del Especialista</h2>
+
+  <!-- Filtros de búsqueda -->
+  <div class="filtros">
+    <label for="filtroFecha">Filtrar por Fecha:</label>
+    <input id="filtroFecha" [(ngModel)]="filtroFecha" placeholder="YYYY-MM-DD" type="date" />
+
+    <label for="filtroPaciente">Filtrar por Paciente:</label>
+    <input id="filtroPaciente" [(ngModel)]="filtroPaciente" placeholder="Nombre del paciente" />
+
+    <label for="filtroEstado">Filtrar por Estado:</label>
+    <select id="filtroEstado" [(ngModel)]="filtroEstado">
+      <option value="">Todos</option>
+      <option value="Aceptado">Aceptado</option>
+      <option value="Rechazado">Rechazado</option>
+      <option value="Cancelado">Cancelado</option>
+      <option value="Pendiente">Pendiente</option>
+    </select>
+
+    <label for="filtroTexto">Buscar en Historia Clínica:</label>
+    <input id="filtroTexto" [(ngModel)]="filtroTexto" placeholder="Texto en historia clínica" />
+  </div>
+
+  <!-- Verifica si hay turnos disponibles -->
+  <div *ngIf="turnosFiltrados.length > 0; else sinTurnos">
+    <ul class="lista-turnos">
+      <li
+        *ngFor="let turno of turnosFiltrados; let i = index"
+        class="turno-item"
+        [class.seleccionado]="turno.seleccionado"
+        (click)="seleccionarTurno(i)"
+      >
+        <strong>Fecha:</strong> {{ turno.fecha | date: 'yyyy-MM-dd' }}<br />
+        <strong>Horario:</strong> {{ turno.hora }}<br />
+        <strong>Paciente:</strong> {{ turno.paciente || 'Sin asignar' }}<br />
+        <strong>Estado:</strong> {{ turno.estado }}
+      </li>
+    </ul>
+  </div>
+
+  <!-- Si no hay turnos disponibles, muestra este mensaje -->
+  <ng-template #sinTurnos>
+    <p>No tienes turnos asignados.</p>
+  </ng-template>
+
+  <!-- Si se selecciona un turno, muestra sus detalles -->
+  <div *ngIf="turnoSeleccionado" class="turno-seleccionado">
+    <h3>Turno Seleccionado:</h3>
+    <div class="detalles-turno">
+      <div class="detalles">
+        <p><strong>Fecha:</strong> {{ turnoSeleccionado.fecha }}</p>
+        <p><strong>Horario:</strong> {{ turnoSeleccionado.hora }}</p>
+        <p><strong>Paciente:</strong> {{ turnoSeleccionado.paciente || 'Sin asignar' }}</p>
+        <p><strong>Estado:</strong> {{ turnoSeleccionado.estado }}</p>
+
+        <div class="botones-acciones">
+          <!-- Botones para estados específicos -->
+          <button *ngIf="turnoSeleccionado.estado === 'Solicitado'" (click)="cambiarEstado('Aceptado')">Aceptar</button>
+          <button *ngIf="turnoSeleccionado.estado === 'Solicitado'" (click)="cambiarEstado('Rechazado')">Rechazar</button>
+          <button *ngIf="turnoSeleccionado.estado === 'Aceptado'" (click)="finalizarTurno()">Finalizar</button>
+          <button *ngIf="turnoSeleccionado.estado === 'Aceptado'" (click)="cambiarEstado('Cancelado')">Cancelar</button>
+        </div>
+
+        <!-- Muestra los campos de Historia Clínica si está habilitado -->
+        <div *ngIf="mostrarResena" class="resena-container">
+          <h4>Historia Clínica</h4>
+          
+          <!-- Datos fijos de la historia clínica -->
+          <div class="datos-fijos">
+            <label for="altura">Altura:</label>
+            <input id="altura" [(ngModel)]="turnoSeleccionado.altura" placeholder="Ingrese altura" /><br />
+            
+            <label for="peso">Peso:</label>
+            <input id="peso" [(ngModel)]="turnoSeleccionado.peso" placeholder="Ingrese peso" /><br />
+            
+            <label for="temperatura">Temperatura:</label>
+            <input id="temperatura" [(ngModel)]="turnoSeleccionado.temperatura" placeholder="Ingrese temperatura" /><br />
+            
+            <label for="presion">Presión:</label>
+            <input id="presion" [(ngModel)]="turnoSeleccionado.presion" placeholder="Ingrese presión" /><br />
+          </div>
+
+          <!-- Datos dinámicos de la historia clínica -->
+          <div *ngIf="turnoSeleccionado?.datosDinamicos?.length > 0">
+            <h5>Datos Dinámicos (Máximo 2)</h5>
+            <div *ngFor="let dato of turnoSeleccionado.datosDinamicos; let j = index">
+              <label for="clave-{{j}}">Clave:</label>
+              <input id="clave-{{j}}" [(ngModel)]="dato.clave" placeholder="Ingrese clave" /><br />
+          
+              <label for="valor-{{j}}">Valor:</label>
+              <input id="valor-{{j}}" [(ngModel)]="dato.valor" placeholder="Ingrese valor" /><br />
+            </div>
+          </div>
+          
+          <!-- Botón para agregar un dato dinámico, con límite de 2 -->
+          <button (click)="agregarDatoDinamico()" [disabled]="turnoSeleccionado.datosDinamicos.length >= 2">Agregar Dato Dinámico</button>
+
+          <!-- Reseña final -->
+          <textarea
+            [(ngModel)]="resena"
+            placeholder="Escribe tu reseña aquí..."
+            rows="4"
+            cols="50"
+          ></textarea>
+          <br />
+          <button (click)="guardarResenaYFinalizar()">Guardar Reseña y Finalizar</button>
+        </div>
+      </div>
+      <div *ngIf="historiaClinicaSeleccionada" class="historia-clinica">
+        <h3>Historia Clínica</h3>
+        <p><strong>Altura:</strong> {{ historiaClinicaSeleccionada.altura || 'No disponible' }}</p>
+        <p><strong>Peso:</strong> {{ historiaClinicaSeleccionada.peso || 'No disponible' }}</p>
+        <p><strong>Temperatura:</strong> {{ historiaClinicaSeleccionada.temperatura || 'No disponible' }}</p>
+        <p><strong>Presión:</strong> {{ historiaClinicaSeleccionada.presion || 'No disponible' }}</p>
+    
+        <h4>Datos Dinámicos</h4>
+        <div *ngIf="historiaClinicaSeleccionada.datosDinamicos?.length > 0; else sinDatosDinamicos">
+          <ul>
+            <li *ngFor="let dato of historiaClinicaSeleccionada.datosDinamicos">
+              <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+            </li>
+          </ul>
+        </div>
+        <ng-template #sinDatosDinamicos>
+          <p>No hay datos dinámicos disponibles.</p>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+
+</div>
+

@@ -1,15 +1,19 @@
 <nav class="navbar">
-    <div class="nav-content">
-      <ng-container *ngIf="user; else loggedOut">
-        <button *ngIf="isAdmin" routerLink="/usuarios">Usuarios</button> <!-- Mostrar solo si es admin -->
-        <button  routerLink="/mi-perfil">Mi Perfil</button> <!-- Mostrar solo si es admin -->
-        <button (click)="onLogout()">Cerrar Sesión</button>
-      </ng-container>
-  
-      <ng-template #loggedOut>
-        <button routerLink="/login">Login</button>
-        <button routerLink="/registro-especialistas">Registro Especialistas</button>
-        <button routerLink="/registro-pacientes">Registro Pacientes</button>
-      </ng-template>
-    </div>
+  <div class="nav-content">
+    <ng-container *ngIf="user; else loggedOut">
+      <button *ngIf="isAdmin" routerLink="/usuarios">Usuarios</button> 
+      <button *ngIf="isAdmin" routerLink="/turnos">Turnos</button> 
+      <button *ngIf="isAdmin" routerLink="/informes">Informes</button> 
+      <button *ngIf="isEspecialista" routerLink="/mi-perfil">Mi Perfil</button> 
+      <button *ngIf="isEspecialista" routerLink="/pacientes">Pacientes</button> 
+      <button *ngIf="isPaciente" routerLink="/mi-perfil-paciente">Mi Perfil</button> 
+      <button *ngIf="isPaciente" routerLink="/turno">Solicitar Turno</button> 
+      <button (click)="onLogout()">Cerrar Sesión</button>
+    </ng-container>
+
+    <ng-template #loggedOut>
+      <button routerLink="/login">Login</button>
+      <button routerLink="/registro-seleccion">Registro</button>
+    </ng-template>
+  </div>
 </nav>

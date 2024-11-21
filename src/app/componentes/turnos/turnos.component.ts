@@ -118,7 +118,9 @@
             const turnoBuscado = data['turnos'].find(t => 
               t.especialista === turno.especialista &&
               t.especialidad === turno.especialidad &&
-              t.fecha === turno.fecha
+              t.fecha === turno.fecha &&
+              t.hora === turno.hora
+
             );
     
             if (turnoBuscado) {

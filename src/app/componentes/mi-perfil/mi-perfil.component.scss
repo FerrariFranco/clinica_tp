@@ -1,0 +1,54 @@
+.perfil-container {
+    background-color: #f9f9f9; /* Fondo suave */
+    border: 1px solid #ddd; /* Borde ligero */
+    border-radius: 8px; /* Bordes redondeados */
+    padding: 20px; /* Espaciado interno */
+    margin: 20px auto; /* Espaciado externo */
+    width: 80%; /* Ancho máximo */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra sutil */
+    text-align: center; /* Centrado de contenido */
+  }
+  
+  .perfil-titulo {
+    font-size: 24px; /* Tamaño grande para el título */
+    color: #333; /* Texto oscuro */
+    margin-bottom: 15px; /* Espaciado debajo del título */
+  }
+  
+  .perfil-container p {
+    font-size: 16px; /* Tamaño cómodo para leer */
+    color: #555; /* Texto gris medio */
+    margin: 10px 0; /* Espaciado entre líneas */
+  }
+  
+  .perfil-imagen {
+    max-width: 150px; /* Tamaño máximo de imagen */
+    height: auto; /* Mantener proporción */
+    border-radius: 50%; /* Convertir en círculo */
+    margin-top: 15px; /* Espaciado superior */
+    border: 3px solid #007bff; /* Borde azul */
+  }
+  
+  .perfil-boton {
+    display: inline-block;
+    padding: 10px 20px; /* Espaciado interno */
+    background-color: #007bff; /* Fondo azul */
+    color: white; /* Texto blanco */
+    border: none; /* Sin borde */
+    border-radius: 5px; /* Bordes redondeados */
+    cursor: pointer; /* Cursor de botón */
+    font-size: 16px; /* Texto claro */
+    margin-top: 15px; /* Espaciado superior */
+    transition: background-color 0.3s; /* Transición suave */
+  }
+  
+  .perfil-boton:hover {
+    background-color: #0056b3; /* Fondo azul oscuro al pasar el mouse */
+  }
+  
+  .perfil-mensaje {
+    font-size: 18px; /* Tamaño moderado */
+    color: #888; /* Texto gris claro */
+    text-align: center; /* Centrado del mensaje */
+  }
+  

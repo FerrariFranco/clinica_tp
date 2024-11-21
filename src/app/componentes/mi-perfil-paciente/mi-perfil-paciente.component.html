@@ -1,0 +1,21 @@
+<div *ngIf="paciente" class="perfil-container">
+    <h2 class="perfil-titulo">Perfil del Paciente</h2>
+    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+    <p><strong>Apellido:</strong> {{ paciente.apellido }}</p>
+    <p><strong>Email:</strong> {{ paciente.mail }}</p>
+    <p><strong>Edad:</strong> {{ paciente.edad }}</p>
+    <p><strong>Obra Social:</strong> {{ paciente.obraSocial }}</p>
+    <img
+      *ngIf="paciente.imagen1Url"
+      [src]="paciente.imagen1Url"
+      alt="Imagen del paciente"
+      class="perfil-imagen"
+    />
+    <button class="perfil-boton" (click)="misTurnos()">Mis turnos</button>
+    <button class="perfil-boton" (click)="descargarHistoriasClinicas()">Descargar historias clinicas</button>
+  </div>
+  
+  <div *ngIf="!paciente" class="perfil-container">
+    <p class="perfil-mensaje">No se ha encontrado información del paciente.</p>
+  </div>
+  

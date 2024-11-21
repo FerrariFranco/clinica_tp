@@ -85,7 +85,7 @@ export class RegistroEspecialistasComponent implements OnInit {
     if (this.nuevaEspecialidad && !this.especialidadesList.includes(this.nuevaEspecialidad.trim())) {
       try {
         const especialidadesRef = collection(this.firestore, 'especialidades');
-        await addDoc(especialidadesRef, { nombre: this.nuevaEspecialidad.trim() });
+        await addDoc(especialidadesRef, { nombre: this.nuevaEspecialidad.trim(), imagen: "gs://clinica-tp-930ba.appspot.com/iconosEspecialidades/generico.png" });
         
         this.especialidadesList.push(this.nuevaEspecialidad.trim());
         this.nuevaEspecialidad = '';

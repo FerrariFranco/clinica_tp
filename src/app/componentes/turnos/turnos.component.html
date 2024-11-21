@@ -1,28 +1,54 @@
-<div>
+<div class="filtro-container">
+  <div class="filtro">
     <label for="especialidad">Especialidad:</label>
-    <input id="especialidad" [(ngModel)]="especialidadSeleccionada" (input)="aplicarFiltros()" type="text" placeholder="Buscar especialidad">
+    <input
+      id="especialidad"
+      [(ngModel)]="especialidadSeleccionada"
+      (input)="aplicarFiltros()"
+      type="text"
+      placeholder="Buscar especialidad"
+      class="input-busqueda"
+    />
   </div>
-  
-  <div>
+
+  <div class="filtro">
     <label for="especialista">Especialista:</label>
-    <input id="especialista" [(ngModel)]="especialistaSeleccionado" (input)="aplicarFiltros()" type="text" placeholder="Buscar especialista">
+    <input
+      id="especialista"
+      [(ngModel)]="especialistaSeleccionado"
+      (input)="aplicarFiltros()"
+      type="text"
+      placeholder="Buscar especialista"
+      class="input-busqueda"
+    />
   </div>
-  
-  <!-- Aquí mostramos los turnos filtrados -->
-  <div *ngFor="let turno of turnosFiltrados" (click)="seleccionarTurno(turno)" [ngClass]="{'seleccionado': esSeleccionado(turno)}">
-    <p>{{ turno.especialista }} - {{ turno.fecha }}</p>
-    <p>{{ turno.especialidad }}</p>
-    <p>{{ turno.estado }}</p>
+</div>
+
+<div class="turnos-lista">
+  <div
+    *ngFor="let turno of turnosFiltrados"
+    (click)="seleccionarTurno(turno)"
+    [ngClass]="{'seleccionado': esSeleccionado(turno)}"
+    class="turno-card"
+  >
+    <p><strong>{{ turno.especialista }}</strong> - {{ turno.fecha }} - {{ turno.hora }}</p>
+    <p class="especialidad">{{ turno.especialidad }}</p>
+    <p class="estado">{{ turno.estado }}</p>
   </div>
-  
-  <!-- Mostrar botón de cancelar si hay un turno seleccionado -->
-  <button *ngIf="turnoSeleccionado" (click)="mostrarComentarioForm = true">Cancelar</button>
-  
-  <!-- Formulario de cancelación de turno -->
+</div>
+
+<div class="accion-container">
+  <button *ngIf="turnoSeleccionado" class="btn-cancelar" (click)="mostrarComentarioForm = true">Cancelar Turno</button>
+
   <div *ngIf="mostrarComentarioForm && turnoSeleccionado" class="comentario-form">
     <label for="comentario">Comentario:</label>
-    <input [(ngModel)]="comentarioCancelacion" id="comentario" type="text" placeholder="Ingrese el motivo de la cancelación">
-    
-    <button (click)="cancelarTurno(turnoSeleccionado)">Enviar</button>
+    <input
+      [(ngModel)]="comentarioCancelacion"
+      id="comentario"
+      type="text"
+      placeholder="Ingrese el motivo de la cancelación"
+      class="input-comentario"
+    />
+    <button class="btn-enviar" (click)="cancelarTurno(turnoSeleccionado)">Enviar</button>
   </div>
-  
+</div>

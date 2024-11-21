@@ -1,0 +1,42 @@
+.seleccion-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    margin-top: 50px;
+  
+    .seleccion-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      transition: transform 0.3s ease;
+  
+      img {
+        width: 200px; /* Tamaño de las imágenes */
+        height: auto;
+        transition: transform 0.3s ease;
+      }
+  
+      &:hover img {
+        transform: scale(1.1); /* Efecto de zoom al pasar el mouse */
+      }
+    }
+  }
+  
+  .registro-container {
+    margin-top: 20px;
+    animation: fadeIn 0.5s ease; /* Animación de aparición */
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  

@@ -72,3 +72,47 @@ h2 {
   margin-bottom: 10px;
   text-align: center;
 }
+.registro-botones {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  button {
+    margin: 0 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background-color: #007bff;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+
+    &.activo {
+      background-color: #28a745;
+    }
+  }
+}
+
+.registro-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  min-height: 300px; /* Opcional: asegura una altura mínima para una mejor alineación visual */
+
+  app-registro-especialistas,
+  app-registro-pacientes,
+  app-registro {
+    width: 100%; /* Asegura que el componente no se estire demasiado */
+    max-width: 800px; /* Limita el ancho para centrar */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Opcional: añade un efecto de sombreado */
+    padding: 20px; /* Espaciado interno */
+    border: 1px solid #ddd; /* Opcional: añade un borde ligero */
+    border-radius: 8px; /* Bordes redondeados */
+  }
+}

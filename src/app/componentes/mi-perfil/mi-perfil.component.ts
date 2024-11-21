@@ -85,4 +85,7 @@ export class MiPerfilComponent implements OnInit {
   verMisHorarios() {
     this.router.navigate(['/horarios']);  // Navega a la ruta /horarios
   }
+  misTurnos() {
+    this.router.navigate(['/turnos-especialista']);  // Navega a la ruta /horarios
+  }
 }
