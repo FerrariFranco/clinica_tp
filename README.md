@@ -69,9 +69,9 @@ Permite a los especialistas y pacientes ver sus turnos en listas filtradas.
 
 ### **4. Perfil de Usuario**  
 Sección personalizada para que cada usuario administre sus datos.  
-![Perfil de Usuario](../images/perfil.JPG) <!-- Añadir imagen de ejemplo -->
+![Perfil de Usuario](../../images/perfil.JPG) <!-- Añadir imagen de ejemplo -->
 
 ### **5. Informes Administrativos**  
 Gráficos y datos relevantes para la gestión administrativa.  
-![Informes Administrativos](../images/informes.JPG) <!-- Añadir imagen de ejemplo -->
+![Informes Administrativos](../../images/informes.JPG) <!-- Añadir imagen de ejemplo -->
 
