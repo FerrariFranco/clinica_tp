@@ -57,21 +57,21 @@ El administrador puede:
 
 ### **1. Registro**
 Vista de seleccionado de Registro. Incluye validaciones.  
-![Registro](images/registro.jpg) <!-- Añadir imagen de ejemplo -->
+![Registro](images/registro.JPG) <!-- Añadir imagen de ejemplo -->
 
 ### **2. Selección de Turnos**  
 Interfaz interactiva para que los pacientes seleccionen turnos según disponibilidad.  
-![Selección de Turnos](images/seleccionturnos.jpg) <!-- Añadir imagen de ejemplo -->
+![Selección de Turnos](images/seleccionturnos.JPG) <!-- Añadir imagen de ejemplo -->
 
 ### **3. Vista de Turnos**  
 Permite a los especialistas y pacientes ver sus turnos en listas filtradas.  
-![Vista de Turnos](images/turnos.jpg) <!-- Añadir imagen de ejemplo -->
+![Vista de Turnos](images/turnos.JPG) <!-- Añadir imagen de ejemplo -->
 
 ### **4. Perfil de Usuario**  
 Sección personalizada para que cada usuario administre sus datos.  
-![Perfil de Usuario](images/perfil.jpg) <!-- Añadir imagen de ejemplo -->
+![Perfil de Usuario](images/perfil.JPG) <!-- Añadir imagen de ejemplo -->
 
 ### **5. Informes Administrativos**  
 Gráficos y datos relevantes para la gestión administrativa.  
-![Informes Administrativos](images/informes.jpg) <!-- Añadir imagen de ejemplo -->
+![Informes Administrativos](images/informes.JPG) <!-- Añadir imagen de ejemplo -->
 
