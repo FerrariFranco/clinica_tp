@@ -73,5 +73,5 @@ Sección personalizada para que cada usuario administre sus datos.
 
 ### **5. Informes Administrativos**  
 Gráficos y datos relevantes para la gestión administrativa.  
-![Informes Administrativos]/(images/informes.JPG) <!-- Añadir imagen de ejemplo -->
+![Informes Administrativos](/images/informes.JPG) <!-- Añadir imagen de ejemplo -->
 
