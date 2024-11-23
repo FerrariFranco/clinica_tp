@@ -6,37 +6,32 @@
   {{ mostrarLogs ? 'Ocultar Logs' : 'Mostrar Logs' }}
 </button>
 
+
+<!-- Logs de ingreso -->
 <!-- Logs de ingreso -->
 <div *ngIf="!loading && mostrarLogs">
-  <h2>Logs de Ingreso</h2>
-  <table>
+  <div class="descarga-buttons">
+    <button (click)="descargarPDF()">Descargar PDF</button>
+    <button (click)="descargarExcel()">Descargar Excel</button>
+  </div>
+  
+  <table #logTable>
     <thead>
       <tr>
         <th>Usuario</th>
-        <th>Hora</th>
-        <th>Cantidad de accesos</th>
+        <th>Fecha y Hora</th>
       </tr>
     </thead>
     <tbody>
-      <ng-container *ngFor="let fecha of logsPorDia | keyvalue">
-       
-        <ng-container *ngFor="let usuario of fecha.value | keyvalue">
-          <tr>
-            <td>{{ usuario.key }}</td>
-            <td>
-              <ul>
-                <li *ngFor="let registro of usuario.value">
-                  {{ registro.hora | date: 'short' }}
-                </li>
-              </ul>
-            </td>
-            <td>{{ usuario.value.length }}</td>
-          </tr>
-        </ng-container>
-      </ng-container>
+      <tr *ngFor="let log of logs">
+        <td>{{ log.usuario }}</td>
+        <td>{{ log.fecha }} {{ log.hora | convertirHora }}</td>
+      </tr>
     </tbody>
   </table>
 </div>
+
+
 
 <!-- Contenedor de los gráficos (2 por fila) -->
 <div class="grafico-row">

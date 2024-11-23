@@ -14,12 +14,15 @@
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 20px;
   width: 250px;
+  height: 400px; /* Altura fija para la tarjeta */
+  overflow-y: auto; /* Agregar desplazamiento vertical */
   transition: transform 0.3s ease-in-out;
 }
 
 .paciente-card:hover {
   transform: scale(1.05);
 }
+
 
 .paciente-header {
   text-align: center;
@@ -28,6 +31,12 @@
 
 .paciente-details {
   margin-bottom: 15px;
+  font-size: 0.9rem; /* Reducir el tamaño de texto para detalles */
+  color: #555; /* Color de texto más suave */
+}
+
+.paciente-details strong {
+  color: #333; /* Resaltar las etiquetas */
 }
 
 .paciente-image {
@@ -37,12 +46,14 @@
 
 .paciente-imagen {
   max-width: 100%;
+  height: auto;
   border-radius: 8px;
 }
 
 .paciente-actions {
   display: flex;
   justify-content: center;
+  gap: 10px;
 }
 
 button {
@@ -53,8 +64,94 @@ button {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  font-size: 0.9rem;
 }
 
 button:hover {
   background-color: #0056b3;
+}
+
+.turnos-container {
+  margin-top: 15px;
+}
+
+.turno-card {
+  background-color: #e8f5e9;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  font-size: 0.9rem;
+}
+
+.turno-info {
+  margin: 5px 0;
+}
+
+.turno-info strong {
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: white;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-height: 80%; /* Limitar el alto del modal */
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content {
+  overflow-y: auto; /* Habilitar desplazamiento vertical */
+  max-height: calc(80vh - 100px); /* Ajustar al tamaño disponible */
+  margin-bottom: 20px; /* Separar del botón de cierre */
+}
+
+.modal-content::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento */
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #888; /* Color de la barra */
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555; /* Color al pasar el mouse */
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color del fondo de la barra */
+}
+
+button {
+  align-self: flex-end;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+button:hover {
+  background: #0056b3;
 }

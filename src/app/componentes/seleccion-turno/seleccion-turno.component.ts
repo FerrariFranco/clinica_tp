@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Firestore, Timestamp, addDoc, collection, doc, getDocs, query, updateDoc, where } from '@angular/fire/firestore';
+import { Firestore, Timestamp, addDoc, collection, doc, getDoc, getDocs, query, updateDoc, where } from '@angular/fire/firestore';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../servicios/auth.service';
 import { Observable } from 'rxjs';
 import { User } from 'firebase/auth';
+import { AlertService } from '../../servicios/alert.service';
+import { RecaptchaDirective } from '../../directivas/recaptcha.directive';  // Importa la directiva
 
 interface Especialista {
   especialidades: never[];
@@ -21,7 +23,7 @@ interface Especialidad {
 @Component({
   selector: 'app-seleccion-turno',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RecaptchaDirective],
   templateUrl: './seleccion-turno.component.html',
   styleUrls: ['./seleccion-turno.component.scss']
 })
@@ -34,11 +36,13 @@ export class SeleccionTurnoComponent implements OnInit {
   selectedEspecialidad: string | null = null;
   turnosDisponibles: { fecha: string; horarios: string[] }[] = [];
   selectedTurno: any;
-
+  captchaActivo: boolean = false; // Estado del captcha
+  captchaValid: boolean = false;
   userEmail: string | null = null;
   user$: Observable<User | null>;
-
-  constructor(private firestore: Firestore, private authService: AuthService) {
+  captchaVisible = true;
+  constructor(private firestore: Firestore, private authService: AuthService,
+    private alertService: AlertService) {
     this.user$ = this.authService.getCurrentUser();
   }
 
@@ -49,12 +53,31 @@ export class SeleccionTurnoComponent implements OnInit {
         this.userEmail = user.email;
       }
     });
-  }
+    await this.checkCaptchaStatus();
 
+  }
+  
+  onCaptchaResolved(isResolved: boolean) {
+    this.captchaValid = isResolved;
+  }
   isEmpty(obj: object): boolean {
     return Object.keys(obj).length === 0;
   }
-
+  async checkCaptchaStatus() {
+    try {
+      const captchaRef = doc(this.firestore, 'captcha', 'captcha'); // ID único "captcha"
+      const captchaSnapshot = await getDoc(captchaRef);
+      if (captchaSnapshot.exists()) {
+        const data = captchaSnapshot.data();
+        this.captchaActivo = data['activado'] === true; // Verifica si está activado
+      }
+    } catch (error) {
+      console.error('Error al verificar el estado del captcha:', error);
+    }
+  }
+  toggleCaptchaVisibility() {
+    this.captchaVisible = !this.captchaVisible;
+  }
   async cargarEspecialistas() {
     const especialistasRef = collection(this.firestore, 'especialistas');
     const snapshot = await getDocs(especialistasRef);
@@ -135,55 +158,56 @@ export class SeleccionTurnoComponent implements OnInit {
     }
   }
   generateId(): string {
-    const timestamp = Date.now().toString(36); // Representación en base 36 del tiempo actual
-    const randomString = Math.random().toString(36).substring(2, 15); // Cadena aleatoria única
+    const timestamp = Date.now().toString(36); 
+    const randomString = Math.random().toString(36).substring(2, 15); 
     return `${timestamp}-${randomString}`;
   }
   
   async onSolicitarTurno() {
     if (!this.selectedTurno || !this.selectedEspecialista || !this.selectedEspecialidad) {
-      console.log("Por favor, seleccione un turno antes de solicitar.");
+      this.alertService.showAlert("Por favor, seleccione un turno antes de solicitar." ,"error");
       return;
     }
   
     try {
       const agendaRef = collection(this.firestore, 'agendas');
+      console.log("1")
       const q = query(
         agendaRef,
         where('mailEspecialista', '==', this.selectedEspecialista.mail),
         where('especialidad', '==', this.selectedEspecialidad)
+        
       );
-  
+      console.log("2")
       const snapshot = await getDocs(q);
       if (snapshot.empty) {
         console.log("No se encontró la agenda del especialista.");
         return;
       }
-  
+      console.log("3")
       const agendaDoc = snapshot.docs[0];
       const agendaData = agendaDoc.data();
-  
+      console.log("4")
       const turnosActualizados = agendaData['turnos'].map((turno: any) => {
         if (turno.fecha === this.selectedTurno?.fecha) {
           turno.horarios = turno.horarios.filter((hora: string) => hora !== this.selectedTurno?.hora);
         }
         return turno;
       });
-  
+      console.log("5")
       const turnosRestantes = turnosActualizados.filter((turno: { horarios: string | any[]; }) => turno.horarios.length > 0);
-  
+      console.log("6")
       if (turnosRestantes.length > 0) {
         const agendaDocRef = doc(this.firestore, 'agendas', agendaDoc.id);
         await updateDoc(agendaDocRef, { turnos: turnosRestantes });
       } else {
         console.log("No hay más horarios disponibles para esta fecha.");
       }
-  
-      // Generar ID único para el turno
+      console.log("7")
       const turnoId = this.generateId();
   
       const nuevoTurno = {
-        id: turnoId, // Se agrega el ID aquí
+        id: turnoId, 
         especialista: `${this.selectedEspecialista.nombre} ${this.selectedEspecialista.apellido}`,
         especialidad: this.selectedEspecialidad,
         mailEspecialista: this.selectedEspecialista.mail,
@@ -201,7 +225,7 @@ export class SeleccionTurnoComponent implements OnInit {
           mailPaciente: this.userEmail,
           turnos: [nuevoTurno]
         });
-        console.log("Nuevo documento creado en 'turnosPaciente' con el turno solicitado.");
+        this.alertService.showAlert("Turno Solicitado","success" );
       } else {
         const pacienteDoc = pacienteSnapshot.docs[0];
         const turnosExistentes = pacienteDoc.data()['turnos'] || [];
@@ -209,7 +233,8 @@ export class SeleccionTurnoComponent implements OnInit {
   
         const pacienteDocRef = doc(this.firestore, 'turnosPaciente', pacienteDoc.id);
         await updateDoc(pacienteDocRef, { turnos: turnosExistentes });
-        console.log("Turno agregado al documento existente en 'turnosPaciente'.");
+        this.alertService.showAlert("Turno Solicitado","success" );
+
       }
   
       await this.obtenerTurnosDisponibles();

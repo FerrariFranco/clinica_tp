@@ -36,10 +36,12 @@
       Imagen 2:
       <input type="file" (change)="onImage2Selected($event)" />
     </label>
-    <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
+
+    <div *ngIf="captchaActivo">
+      <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
+    </div>
 
     <button type="submit" [disabled]="loading">Registrar Paciente</button>
-    
     <app-spinner *ngIf="loading"></app-spinner>
   </form>
 </div>

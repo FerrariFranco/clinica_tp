@@ -10,28 +10,20 @@ import * as ExcelJS from 'exceljs';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver'; 
 import { Buffer } from 'buffer';
+import { ConvertirHoraPipe } from '../../pipes/convertir-hora.pipe';
+import 'jspdf-autotable';
 
-interface LogEntry {
-  hora: Date;
-  cantidad: number;
-}
 
-interface LogsPorDia {
-  [fecha: string]: { 
-    [usuario: string]: LogEntry[];
-  };
-}
 
 @Component({
   selector: 'app-informes',
   templateUrl: './informes.component.html',
   styleUrls: ['./informes.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule,ConvertirHoraPipe],
 })
 export class InformesComponent implements OnInit {
-  // Datos obtenidos
-  logsPorDia: LogsPorDia = {};
+  logs: any[] = [];
   loading = true;
   turnosPorMedico: { [especialista: string]: number } = {};  // Contadores de turnos por médico
   medicoLabels: string[] = [];
@@ -54,8 +46,8 @@ medicoFinalizadosData: number[] = [];
 
     await this.cargarLogs(); // Cargar los logs
     await this.cargarTurnosPorEspecialidad();
-    this.cargarTurnosUltimaSemana();
-    this.cargarTurnosFinalizadosUltimaSemana(); // Cargar los turnos por especialidad
+    this.cargarTurnosSemanaActual();
+    this.cargarTurnosFinalizadosSemanaActual(); // Cargar los turnos por especialidad
   }
 
   toggleLogs() {
@@ -66,33 +58,13 @@ medicoFinalizadosData: number[] = [];
       const logsRef = collection(this.firestore, 'logs');
       const querySnapshot = await getDocs(logsRef);
   
-      querySnapshot.docs.forEach((doc) => {
-        const logData = doc.data();  // Obtener los datos de los logs
-        const fecha = logData['fecha'];  // Fecha
-        const hora = logData['hora'];  // Hora
-        const usuario = logData['usuario'];  // Usuario
-  
-        if (fecha && usuario && hora) {
-          if (!this.logsPorDia[fecha]) {
-            this.logsPorDia[fecha] = {};
-          }
-  
-          // Si no existe el usuario, creamos un array vacío
-          if (!this.logsPorDia[fecha][usuario]) {
-            this.logsPorDia[fecha][usuario] = [];
-          }
-  
-          // Convertir la hora en un objeto Date para ordenarla y compararla
-          const horaCompleta = new Date(`${fecha}T${hora}`);  // Combina fecha + hora
-  
-          // Verifica que horaCompleta sea un objeto Date válido
-          if (!isNaN(horaCompleta.getTime())) {
-            // Añadir la hora y cantidad de accesos para ese usuario
-            this.logsPorDia[fecha][usuario].push({ hora: horaCompleta, cantidad: 1 });
-          } else {
-            console.error('Fecha y hora inválida:', fecha, hora);
-          }
-        }
+      this.logs = querySnapshot.docs.map(doc => doc.data());
+      
+      // Ordenar los logs por fecha y hora (de más reciente a más antiguo)
+      this.logs.sort((a, b) => {
+        const fechaHoraA = new Date(`${a.fecha}T${a.hora}`);
+        const fechaHoraB = new Date(`${b.fecha}T${b.hora}`);
+        return fechaHoraB.getTime() - fechaHoraA.getTime();  // Ordenar descendente
       });
     } catch (error) {
       console.error('Error al cargar los logs:', error);
@@ -100,7 +72,6 @@ medicoFinalizadosData: number[] = [];
       this.loading = false;
     }
   }
- 
   async cargarTurnosPorEspecialidad() {
     try {
       const turnosRef = collection(this.firestore, 'turnosPaciente');
@@ -203,13 +174,14 @@ medicoFinalizadosData: number[] = [];
       });
     }
   }
-  async cargarTurnosUltimaSemana() {
+  async cargarTurnosSemanaActual() {
     try {
       const turnosRef = collection(this.firestore, 'turnosPaciente');
       const querySnapshot = await getDocs(turnosRef);
-      const fechaHoy = new Date();
-      const fechaLimite = new Date(fechaHoy);
-      fechaLimite.setDate(fechaHoy.getDate() - 7);  // Calcula la fecha de hace 7 días
+  
+      const hoy = new Date();
+      const inicioSemana = this.getInicioSemana(hoy);  // Obtener el inicio de la semana actual (lunes)
+      const finSemana = this.getFinSemana(hoy);        // Obtener el fin de la semana actual (domingo)
   
       // Objeto para contar turnos por especialista
       const turnosPorMedicoContadores: { [key: string]: number } = {};
@@ -221,13 +193,14 @@ medicoFinalizadosData: number[] = [];
         if (turnos && Array.isArray(turnos)) {
           turnos.forEach((turno) => {
             const especialista = turno['especialista']; // Obtener el especialista del turno
-            const fechaTurno = turno['fecha']; // Obtener la fecha del turno
-            const estadoTurno = turno['estado']; // Obtener el estado del turno
+            const fechaTurno = turno['fecha'];           // Obtener la fecha del turno
   
-            if (especialista && fechaTurno && estadoTurno === 'Solicitado') {
+            if (especialista && fechaTurno) {
               const fechaTurnoDate = new Date(fechaTurno); // Convertir la fecha de turno en un objeto Date
-              if (fechaTurnoDate >= fechaLimite && fechaTurnoDate <= fechaHoy) {
-                // Si la fecha del turno está dentro de la última semana y el estado es "Solicitado"
+  
+              // Filtrar los turnos que estén dentro de la semana actual
+              if (fechaTurnoDate >= inicioSemana && fechaTurnoDate <= finSemana) {
+                // Si el turno está dentro de la semana actual
                 if (!turnosPorMedicoContadores[especialista]) {
                   turnosPorMedicoContadores[especialista] = 0;
                 }
@@ -241,13 +214,37 @@ medicoFinalizadosData: number[] = [];
       // Asignar los datos de los especialistas al gráfico
       this.medicoLabels = Object.keys(turnosPorMedicoContadores);
       this.medicoData = this.medicoLabels.map((especialista) => turnosPorMedicoContadores[especialista]);
-      this.dibujarGraficoTurnosPorMedico();  // Llamar la función para dibujar el gráfico
+  
+      // Llamar la función para dibujar el gráfico de turnos por médico
+      this.dibujarGraficoTurnosPorMedico();
+  
     } catch (error) {
       console.error('Error al cargar los turnos:', error);
     } finally {
       this.loading = false;
     }
   }
+  
+  // Función para obtener el inicio de la semana (lunes)
+  getInicioSemana(fecha: Date): Date {
+    const dia = fecha.getDay(),
+          diferencia = (dia === 0 ? 6 : dia - 1); // El lunes es el inicio de la semana
+    const inicio = new Date(fecha);
+    inicio.setDate(fecha.getDate() - diferencia);
+    inicio.setHours(0, 0, 0, 0);
+    return inicio;
+  }
+  
+  // Función para obtener el fin de la semana (domingo)
+  getFinSemana(fecha: Date): Date {
+    const dia = fecha.getDay(),
+          diferencia = (dia === 0 ? 0 : 7 - dia); // El domingo es el fin de la semana
+    const fin = new Date(fecha);
+    fin.setDate(fecha.getDate() + diferencia);
+    fin.setHours(23, 59, 59, 999);
+    return fin;
+  }
+  
 
   dibujarGraficoTurnosPorMedico() {
     const canvas = document.getElementById('graficoTurnosMedico') as HTMLCanvasElement;
@@ -277,51 +274,59 @@ medicoFinalizadosData: number[] = [];
     }
   }
 
-  async cargarTurnosFinalizadosUltimaSemana() {
-    try {
-      const turnosRef = collection(this.firestore, 'turnosPaciente');
-      const querySnapshot = await getDocs(turnosRef);
-      const fechaHoy = new Date();
-      const fechaLimite = new Date(fechaHoy);
-      fechaLimite.setDate(fechaHoy.getDate() - 7);  // Calcula la fecha de hace 7 días
-  
-      // Objeto para contar turnos finalizados por especialista
-      const turnosPorMedicoFinalizados: { [key: string]: number } = {};
-  
-      querySnapshot.docs.forEach((doc) => {
-        const turnoData = doc.data();
-        const turnos = turnoData['turnos'];
-  
-        if (turnos && Array.isArray(turnos)) {
-          turnos.forEach((turno) => {
-            const especialista = turno['especialista']; // Obtener el especialista del turno
-            const fechaTurno = turno['fecha']; // Obtener la fecha del turno
-            const estadoTurno = turno['estado']; // Obtener el estado del turno
-  
-            if (especialista && fechaTurno && estadoTurno === 'Finalizado') {
-              const fechaTurnoDate = new Date(fechaTurno); // Convertir la fecha del turno en un objeto Date
-              if (fechaTurnoDate >= fechaLimite && fechaTurnoDate <= fechaHoy) {
-                // Si la fecha del turno está dentro de la última semana y el estado es "Finalizado"
-                if (!turnosPorMedicoFinalizados[especialista]) {
-                  turnosPorMedicoFinalizados[especialista] = 0;
-                }
-                turnosPorMedicoFinalizados[especialista]++;
+  async cargarTurnosFinalizadosSemanaActual() {
+  try {
+    const turnosRef = collection(this.firestore, 'turnosPaciente');
+    const querySnapshot = await getDocs(turnosRef);
+
+    const hoy = new Date();
+    const inicioSemana = this.getInicioSemana(hoy);  // Obtener el inicio de la semana actual (lunes)
+    const finSemana = this.getFinSemana(hoy);        // Obtener el fin de la semana actual (domingo)
+
+    // Objeto para contar turnos finalizados por especialista
+    const turnosPorMedicoFinalizados: { [key: string]: number } = {};
+
+    querySnapshot.docs.forEach((doc) => {
+      const turnoData = doc.data();
+      const turnos = turnoData['turnos'];
+
+      if (turnos && Array.isArray(turnos)) {
+        turnos.forEach((turno) => {
+          const especialista = turno['especialista']; // Obtener el especialista del turno
+          const fechaTurno = turno['fecha'];           // Obtener la fecha del turno
+          const estadoTurno = turno['estado'];         // Obtener el estado del turno
+
+          if (especialista && fechaTurno && estadoTurno === 'Finalizado') {
+            const fechaTurnoDate = new Date(fechaTurno); // Convertir la fecha del turno en un objeto Date
+
+            // Filtrar los turnos que estén dentro de la semana actual
+            if (fechaTurnoDate >= inicioSemana && fechaTurnoDate <= finSemana) {
+              // Si el turno está dentro de la semana actual y el estado es "Finalizado"
+              if (!turnosPorMedicoFinalizados[especialista]) {
+                turnosPorMedicoFinalizados[especialista] = 0;
               }
+              turnosPorMedicoFinalizados[especialista]++;
             }
-          });
-        }
-      });
-  
-      // Asignar los datos de los especialistas al gráfico
-      this.medicoFinalizadosLabels = Object.keys(turnosPorMedicoFinalizados);
-      this.medicoFinalizadosData = this.medicoFinalizadosLabels.map((especialista) => turnosPorMedicoFinalizados[especialista]);
-      this.dibujarGraficoTurnosFinalizadosPorMedico();  // Llamar la función para dibujar el gráfico
-    } catch (error) {
-      console.error('Error al cargar los turnos finalizados:', error);
-    } finally {
-      this.loading = false;
-    }
+          }
+        });
+      }
+    });
+
+    // Asignar los datos de los especialistas al gráfico
+    this.medicoFinalizadosLabels = Object.keys(turnosPorMedicoFinalizados);
+    this.medicoFinalizadosData = this.medicoFinalizadosLabels.map((especialista) => turnosPorMedicoFinalizados[especialista]);
+
+    // Llamar la función para dibujar el gráfico de turnos finalizados por médico
+    this.dibujarGraficoTurnosFinalizadosPorMedico();
+
+  } catch (error) {
+    console.error('Error al cargar los turnos finalizados:', error);
+  } finally {
+    this.loading = false;
   }
+}
+
+
   
   dibujarGraficoTurnosFinalizadosPorMedico() {
     const canvas = document.getElementById('graficoTurnosFinalizadosMedico') as HTMLCanvasElement;
@@ -400,5 +405,34 @@ medicoFinalizadosData: number[] = [];
     const doc = new jsPDF();
     doc.addImage(data, 'PNG', 10, 10, 180, 150); 
     doc.save(`${graphId}.pdf`);
+  }
+
+  descargarPDF() {
+    const doc = new jsPDF();
+    doc.text('Logs de Ingreso', 14, 10);
+
+    // Cabecera de la tabla
+    (doc as any).autoTable({
+      head: [['Usuario', 'Fecha y Hora']],
+      body: this.logs.map(log => [log.usuario, `${log.fecha} ${log.hora}`]),
+      startY: 20, // Ajusta la posición Y para que la tabla comience después del título
+    });
+
+    // Descargar el PDF
+    doc.save('logs_de_ingreso.pdf');
+  }
+
+  // Método para generar el archivo Excel
+  descargarExcel() {
+    const ws: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.logs.map(log => ({
+      Usuario: log.usuario,
+      'Fecha y Hora': `${log.fecha} ${log.hora}`
+    })));
+
+    const wb: XLSX.WorkBook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Logs de Ingreso');
+
+    // Descargar el archivo Excel
+    XLSX.writeFile(wb, 'logs_de_ingreso.xlsx');
   }
 }

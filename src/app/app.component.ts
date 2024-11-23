@@ -6,12 +6,13 @@ import { Alert, AlertService } from './servicios/alert.service';
 import { CommonModule } from '@angular/common';
 import { routeAnimations } from './animations';
 import { ChildrenOutletContexts } from '@angular/router';  // Importar ChildrenOutletContexts
+import { ChartistModule } from "ng-chartist";
 
 import { routeAnimationsDos } from './animationsdos'; 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, AlertComponent, CommonModule],
+  imports: [RouterOutlet, NavbarComponent, AlertComponent, CommonModule, ChartistModule],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
   animations:[routeAnimations, routeAnimationsDos]

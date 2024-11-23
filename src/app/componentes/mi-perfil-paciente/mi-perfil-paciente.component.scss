@@ -60,3 +60,123 @@
   font-weight: bold;
   padding: 20px;
 }
+/* Modal Overlay - Fondo semi-transparente */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que el modal se muestre sobre otros elementos */
+}
+
+/* Modal Contenedor */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo oscuro semitransparente */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Asegura que el modal se muestre sobre otros elementos */
+  animation: fadeIn 0.3s ease;
+}
+
+/* Modal Contenedor */
+.modal {
+  background-color: white;
+  border-radius: 8px;
+  max-width: 40%; /* Aumentar el ancho máximo */
+  width: 90%;
+  padding: 30px; /* Aumentar el padding para más espacio interno */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start; /* Asegurarse de que el contenido esté alineado verticalmente */
+  align-items: center; /* Centrar el contenido */
+  overflow-y: auto; /* Agregar scroll cuando el contenido sea más largo */
+  z-index: 1001;
+  max-height: 80vh; /* Limitar la altura del modal */
+}
+
+/* Título del Modal */
+.modal h3 {
+  font-size: 28px; /* Aumentar el tamaño del título */
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* Estilos para el Contenido */
+.modal p {
+  font-size: 18px; /* Aumentar el tamaño de la fuente */
+  color: #555;
+  margin-bottom: 15px;
+  text-align: center; /* Centrar el texto */
+}
+
+/* Estilo de los botones dentro del Modal */
+.modal button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 12px 24px; /* Aumentar el tamaño del botón */
+  font-size: 18px; /* Aumentar el tamaño de la fuente */
+  cursor: pointer;
+  margin-top: 20px;
+  width: 100%;
+  transition: background-color 0.3s ease;
+}
+
+/* Botón de "Cerrar" */
+.modal button:focus {
+  outline: none;
+}
+
+.modal button:hover {
+  background-color: #0056b3; /* Color al pasar el mouse */
+}
+
+/* Ajustes para la Lista dentro del Modal */
+.contenido-modal {
+  max-height: 60vh;  /* Limitar la altura del contenido para que aparezca el scroll si es necesario */
+  overflow-y: auto;  /* Permitir desplazamiento vertical cuando el contenido sea largo */
+  margin-bottom: 20px; /* Aumentar el margen inferior */
+  width: 100%; /* Hacer que ocupe todo el ancho disponible */
+}
+
+.modal ul {
+  list-style-type: none;
+  padding-left: 0;
+  text-align: left; /* Alinear el texto a la izquierda dentro de la lista */
+}
+
+.modal ul li {
+  margin-bottom: 15px; /* Aumentar el margen entre los items de la lista */
+  font-size: 16px; /* Aumentar el tamaño de la fuente */
+  color: #333;
+  line-height: 1.5; /* Aumentar la altura de línea para mayor legibilidad */
+}
+
+.modal ul li strong {
+  font-weight: bold;
+}
+
+/* Para la animación de apertura del modal */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

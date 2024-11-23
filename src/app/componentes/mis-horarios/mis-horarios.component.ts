@@ -5,6 +5,7 @@ import { Firestore, collection, query, where, getDocs, addDoc, updateDoc, doc } 
 import { AuthService } from '../../servicios/auth.service'; 
 import { firstValueFrom } from 'rxjs';
 import { SeleccionDiaDirective } from '../../directivas/seleccion-dia.directive';
+import { AlertService } from '../../servicios/alert.service';
 
 @Component({
   selector: 'app-mis-horarios',
@@ -26,7 +27,8 @@ export class MisHorariosComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private firestore: Firestore,
-    private authService: AuthService
+    private authService: AuthService,
+    private alertService: AlertService
   ) {
     this.horariosForm = this.fb.group({
       dias: [[]],
@@ -178,7 +180,7 @@ export class MisHorariosComponent implements OnInit {
           await updateDoc(docRef, {
             turnos: turnos 
           });
-          console.log('Agenda actualizada exitosamente.');
+          this.alertService.showAlert('Agenda actualizada exitosamente.', "success");
         });
       } else {
         const turnosRef = collection(this.firestore, 'agendas');
@@ -187,7 +189,7 @@ export class MisHorariosComponent implements OnInit {
           especialidad: especialidad,
           turnos: turnos
         });
-        console.log('Nueva agenda guardada exitosamente.');
+        this.alertService.showAlert('Nueva agenda guardada exitosamente.', "success");
       }
     } catch (error) {
       console.error('Error al guardar o actualizar los turnos en Firestore:', error);

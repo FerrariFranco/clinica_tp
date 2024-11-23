@@ -1,75 +1,138 @@
-  <div *ngIf="loading">
-    <h1>Cargando usuarios...</h1>
-  </div>
+<div *ngIf="loading">
+  <h1>Cargando usuarios...</h1>
+</div>
 
-
-  <div *ngIf="!loading" class="usuario-container">
-    <div class="listas-container">
-      <div class="lista-container">
-        <h1>Especialistas Autorizados</h1>
-        <ul class="usuario-list">
-          <li *ngFor="let especialista of especialistasAutorizados" class="usuario-item">
-            <img
-              *ngIf="especialista.imagenUrl"
-              [src]="especialista.imagenUrl"
-              alt="{{ especialista.nombre }}"
-              class="usuario-imagen"
-            />
-            <span class="usuario-nombre">
-              {{ especialista.nombre }} {{ especialista.apellido }} - {{ especialista.especialidad }}
-            </span>
-          </li>
-        </ul>
+<div *ngIf="!loading" class="usuario-container">
+  <div class="listas-container">
+    <<div class="lista lista-admins">
+  <h1>Admins</h1>
+  <div class="card-container">
+    <div *ngFor="let admin of administradores" class="card">
+      <img
+        *ngIf="admin.imageUrl"
+        [src]="admin.imageUrl"
+        alt="{{ admin.email }}"
+        class="card-imagen"
+      />
+      <div class="card-contenido">
+        <h2>{{ admin.email }}</h2>
       </div>
-      <div class="lista-container">
-        <h1>Especialistas No Autorizados</h1>
-        <ul class="usuario-list">
-          <li *ngFor="let especialista of especialistasNoAutorizados" class="usuario-item">
-            <img
-              *ngIf="especialista.imagenUrl"
-              [src]="especialista.imagenUrl"
-              alt="{{ especialista.nombre }}"
-              class="usuario-imagen"
-            />
-            <span class="usuario-nombre" (click)="authorizeEspecialista(especialista.id)">
-              {{ especialista.nombre }} {{ especialista.apellido }} - {{ especialista.especialidad }}
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      <div class="lista-container">
-        <h1>Lista de Pacientes</h1>
-        <ul class="usuario-list">
-          <li *ngFor="let paciente of pacientes" class="usuario-item">
-            <img
-              *ngIf="paciente.imagen1Url"
-              [src]="paciente.imagen1Url"
-              alt="{{ paciente.nombre }}"
-              class="usuario-imagen"
-            />
-            <span class="usuario-nombre">{{ paciente.nombre }} {{ paciente.apellido }} - {{ paciente.mail }}</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="registro-botones">
-      <button (click)="mostrarComponente('especialistas')" [class.activo]="componenteActivo === 'especialistas'">
-        Registro Especialistas
-      </button>
-      <button (click)="mostrarComponente('pacientes')" [class.activo]="componenteActivo === 'pacientes'">
-        Registro Pacientes
-      </button>
-      <button (click)="mostrarComponente('usuarios')" [class.activo]="componenteActivo === 'usuarios'">
-        Registro Admin
-      </button>
-    </div>
-
-    <!-- Componentes de Registro -->
-    <div class="registro-container">
-      <app-registro-especialistas *ngIf="componenteActivo === 'especialistas'"></app-registro-especialistas>
-      <app-registro-pacientes *ngIf="componenteActivo === 'pacientes'"></app-registro-pacientes>
-      <app-registro *ngIf="componenteActivo === 'usuarios'"></app-registro>
     </div>
   </div>
+</div>
+    <div class="lista lista-especialistas">
+      <h1>Especialistas</h1>
+      <div class="card-container">
+        <div *ngFor="let especialista of especialistas" class="card">
+          <img
+            *ngIf="especialista.imagenUrl"
+            [src]="especialista.imagenUrl"
+            alt="{{ especialista.nombre }}"
+            class="card-imagen"
+          />
+          <div class="card-contenido">
+            <h2>{{ especialista.nombre | capitalize }} {{ especialista.apellido | capitalize }}</h2>
+            <p><strong>Especialidades:</strong></p>
+            <ul>
+              <p *ngFor="let especialidad of especialista.especialidades">{{ especialidad  | capitalize}}</p>
+            </ul>
+            <label>
+              <input
+                type="checkbox"
+                [checked]="especialista.autorizado"
+                (change)="toggleEspecialistaHabilitado(especialista)"
+              />
+              Habilitado
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista de Pacientes -->
+    <div class="lista lista-pacientes">
+      <h1>Pacientes</h1>
+      <div class="card-container">
+        <div *ngFor="let paciente of pacientes" class="card">
+          <img
+            *ngIf="paciente.imagen1Url"
+            [src]="paciente.imagen1Url"
+            alt="{{ paciente.nombre }}"
+            class="card-imagen"
+          />
+          <div class="card-contenido">
+            <h2>{{ paciente.nombre | capitalize }} {{ paciente.apellido | capitalize }}</h2>
+            <p>Correo: {{ paciente.mail }}</p>
+            <p>Dni: {{ paciente.dni | dni}}</p>
+            <button (click)="verHistoriaClinica(paciente.mail)">Ver Historia Clínica</button>
+            <button (click)="descargarTurnosPaciente(paciente.mail)">Descargar Turnos</button>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Botones de Registro -->
+  <div class="botones-container">
+    <button
+      (click)="mostrarComponente('registroEspecialistas')"
+      [class.activo]="componenteActivo === 'registroEspecialistas'"
+    >
+      Registro Especialistas
+    </button>
+    <button
+      (click)="mostrarComponente('registroPacientes')"
+      [class.activo]="componenteActivo === 'registroPacientes'"
+    >
+      Registro Pacientes
+    </button>
+    <button
+      (click)="mostrarComponente('registroUsuarios')"
+      [class.activo]="componenteActivo === 'registroUsuarios'"
+    >
+      Registro Admin
+    </button>
+  </div>
+
+  <!-- Componentes de Registro -->
+  <app-registro-especialistas *ngIf="componenteActivo === 'registroEspecialistas'"></app-registro-especialistas>
+  <app-registro-pacientes *ngIf="componenteActivo === 'registroPacientes'"></app-registro-pacientes>
+  <app-registro *ngIf="componenteActivo === 'registroUsuarios'"></app-registro>
+  <div class="checkbox-container">
+    <label>
+      <input
+        type="checkbox"
+        [(ngModel)]="captchaActivado"
+        (change)="toggleCaptchaState()"
+      />
+      Habilitar Captcha
+    </label>
+  </div>
+
+  <!-- Modal para Historias Clínicas -->
+  <div class="modal" *ngIf="mostrarModal">
+    <div class="modal-content">
+      <span class="close" (click)="cerrarModal()">&times;</span>
+      <h2>Historias Clínicas</h2>
+      <div class="historias-container">
+        <div *ngFor="let historia of historiasClinicas" class="historia-item">
+          <p><strong>Fecha:</strong> {{ historia.fecha }}</p>
+          <p><strong>Peso:</strong> {{ historia.peso }}</p>
+          <p><strong>Altura:</strong> {{ historia.altura }}</p>
+          <p><strong>Presión:</strong> {{ historia.presion }}</p>
+          <p><strong>Temperatura:</strong> {{ historia.temperatura }}</p>
+          <div *ngIf="historia.datosDinamicos && historia.datosDinamicos.length">
+            <h4>Datos adicionales:</h4>
+            <ul>
+              <li *ngFor="let dato of historia.datosDinamicos">
+                {{ dato.clave }}: {{ dato.valor }}
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <button class="btn-cerrar" (click)="cerrarModal()">Cerrar</button>
+    </div>
+  </div>
+</div>

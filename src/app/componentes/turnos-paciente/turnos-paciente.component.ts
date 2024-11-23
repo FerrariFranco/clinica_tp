@@ -1,27 +1,30 @@
 import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, updateDoc, doc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, updateDoc, doc, getDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../servicios/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 @Component({
   selector: 'app-turnos-paciente',
   templateUrl: './turnos-paciente.component.html',
   styleUrls: ['./turnos-paciente.component.scss'],
   standalone: true,
   imports: [CommonModule, FormsModule],
-  
 })
 
 export class TurnosPacienteComponent implements OnInit {
   turnos: any[] = [];
-  turnosFiltrados: any[] = [];
   turnoSeleccionado: any = null;
+  mostrarCalificar = false; // Controla si el modal de calificación se muestra
+  mostrarModalCancelar = false;
+  historiasClinicas: any[] = [];  // Para almacenar todas las historias clínicas del paciente
+  historiaClinicaSeleccionada: any = null;
+  mostrarHistoriaClinica = false;
 
-  filtroEspecialidad: string = ''; // Filtro por especialidad
-  filtroEspecialista: string = ''; // Filtro por especialista
-  filtroHistoriaClinica: string = ''; 
+  turnoACalificar: any = null;
+  turnoACancelar: any = null;
+  filtroTexto: string = ''; // Filtro de texto único para todo
 
-  mostrarCalificar: boolean = false;
   comentario: string = '';
   calificacion: number | null = null;
 
@@ -29,23 +32,94 @@ export class TurnosPacienteComponent implements OnInit {
 
   ngOnInit(): void {
     this.cargarTurnos();
+    this.cargarHistoriasClinicas();
   }
 
+  get turnosFiltrados(): any[] {
+    return this.turnos.filter(turno => {
+      if (this.filtroTexto) {
+        const textoHistoria = this.filtrarHistoriaClinica(turno);
+        return textoHistoria.includes(this.filtroTexto.toLowerCase());
+      }
+      return true; // Si no hay filtro, incluye todos los turnos
+    });
+  }
+ // Mostrar modal para calificar la atención
+ async cargarHistoriasClinicas(): Promise<void> {
+  this.authService.getCurrentUser().subscribe(async (user) => {
+    if (user) {
+      const mailPaciente = user.email;  // Obtenemos el email del paciente
+      const historiasClinicasRef = collection(this.firestore, 'historiasClinicas');
+      const historiasQuery = query(
+        historiasClinicasRef,
+        where('mailPaciente', '==', mailPaciente)  // Filtrar por mailPaciente
+      );
+
+      try {
+        const querySnapshot = await getDocs(historiasQuery);
+        if (!querySnapshot.empty) {
+          this.historiasClinicas = querySnapshot.docs.map(doc => doc.data());
+          console.log('Historias clínicas cargadas:', this.historiasClinicas);
+        } else {
+          console.log('No se encontraron historias clínicas para este paciente.');
+        }
+      } catch (error) {
+        console.error('Error al cargar las historias clínicas:', error);
+      }
+    }
+  });
+}
+cerrarModalHistoriaClinica(): void {
+  this.mostrarHistoriaClinica = false;
+}
+// Método para abrir el modal con la historia clínica del turno seleccionado
+// Método para abrir el modal con la historia clínica del turno seleccionado
+mostrarHistoria(turno: any): void {
+  console.log('Turno seleccionado:', turno); // Verifica si el turno está correcto
+  if (turno.estado === 'Finalizado') {
+    const historia = this.historiasClinicas.find(hc => hc.id === turno.id);
+    console.log('Historia clínica encontrada:', historia); // Verifica si la historia es encontrada
+    if (historia) {
+      this.historiaClinicaSeleccionada = historia;
+      this.mostrarHistoriaClinica = true; // Activa el modal
+    } else {
+      console.log('No se encontró historia clínica para el turno seleccionado.');
+    }
+  } else {
+    console.log('El turno no está finalizado.');
+  }
+}
+
+
+ 
+ abrirModalCancelarTurno(turno: any): void {
+  this.turnoACancelar = turno;
+  this.mostrarModalCancelar = true;
+}
+
+// Cerrar el modal de cancelación
+cerrarModalCancelar(): void {
+  this.mostrarModalCancelar = false;
+}
+// Cerrar el modal de calificación
+cerrarModalCalificar(): void {
+  this.mostrarCalificar = false;
+}
   async cargarTurnos(): Promise<void> {
     this.authService.getCurrentUser().subscribe(async (user) => {
       if (user) {
         const mailPaciente = user.email; // Obtenemos el mail del paciente
         const turnosPacienteRef = collection(this.firestore, 'turnosPaciente');
         const historiasClinicasRef = collection(this.firestore, 'historiasClinicas');
-    
+
         try {
           const querySnapshot = await getDocs(turnosPacienteRef); // Obtenemos todos los documentos de turnosPaciente
-    
+
           if (!querySnapshot.empty) {
             for (const doc of querySnapshot.docs) {
               const data = doc.data();
               const mailPacienteDoc = data['mailPaciente']; // Obtenemos el mailPaciente del documento
-  
+
               // Verificar si el mailPaciente coincide con el usuario actual
               if (mailPacienteDoc === mailPaciente && data['turnos']) {
                 // Si el mailPaciente coincide, procesamos los turnos
@@ -55,7 +129,7 @@ export class TurnosPacienteComponent implements OnInit {
                     paciente: mailPacienteDoc,
                     seleccionado: false,
                   };
-  
+
                   // Consultamos la historia clínica solo si el turno tiene un id
                   if (nuevoTurno.id) {
                     const historiasQuery = query(
@@ -63,22 +137,21 @@ export class TurnosPacienteComponent implements OnInit {
                       where('id', '==', nuevoTurno.id) // Buscar por el id del turno
                     );
                     const historiasSnapshot = await getDocs(historiasQuery);
-  
+
                     // Si la historia clínica existe, la agregamos al turno
                     if (!historiasSnapshot.empty) {
                       const historiaClinica = historiasSnapshot.docs[0].data();
                       nuevoTurno.historiaClinica = historiaClinica; // Asignar historia clínica
                     }
-  
+
                     // Agregar el turno a la lista de turnos
                     this.turnos.push(nuevoTurno);
                   }
                 }
               }
             }
-  
+
             // Filtrar los turnos que tienen historias clínicas
-            this.turnosFiltrados = this.turnos
           }
         } catch (error) {
           console.error('Error al cargar los turnos:', error);
@@ -86,41 +159,59 @@ export class TurnosPacienteComponent implements OnInit {
       }
     });
   }
-  
-  
-  
 
-  seleccionarTurno(index: number): void {
-    this.turnos.forEach((turno) => (turno.seleccionado = false));
-    this.turnosFiltrados[index].seleccionado = true;
-    this.turnoSeleccionado = this.turnosFiltrados[index];
-  }
 
   filtrarHistoriaClinica(turno: any): string {
     const historiaClinica = turno.historiaClinica || {};
-    const historiaClinicaTexto = Object.values(historiaClinica).join(' ');
-    return historiaClinicaTexto;
+  
+    // Concatenar campos fijos de la historia clínica
+    let historiaClinicaTexto = Object.values(historiaClinica).join(' ');
+  
+    // Agregar datos dinámicos si existen
+    const datosDinamicos = historiaClinica.datosDinamicos || turno.datosDinamicos || [];
+    if (Array.isArray(datosDinamicos)) {
+      datosDinamicos.forEach((dato: any) => {
+        const clave = dato.clave || '';
+        const valor = dato.valor || '';
+        historiaClinicaTexto += ` ${clave} ${valor}`;
+      });
+    }
+  
+    // Agregar datos del turno
+    if (turno.especialista) {
+      historiaClinicaTexto += ` ${turno.especialista}`;
+    }
+    if (turno.especialidad) {
+      historiaClinicaTexto += ` ${turno.especialidad}`;
+    }
+    if (turno.paciente) {
+      historiaClinicaTexto += ` ${turno.paciente}`;
+    }
+    if (turno.estado) {
+      historiaClinicaTexto += ` ${turno.estado}`;
+    }
+    if (turno.fecha) {
+      historiaClinicaTexto += ` ${turno.fecha}`;
+    }
+  
+    // Devuelve todo el texto concatenado en minúsculas para evitar problemas de mayúsculas/minúsculas
+    return historiaClinicaTexto.toLowerCase();
+  }
+  
+
+  // Seleccionar un turno
+  seleccionarTurno(turno: any): void {
+    this.turnos.forEach((turno) => (turno.seleccionado = false));
+    turno.seleccionado = true;
+    this.turnoSeleccionado = turno;
   }
 
-  aplicarFiltros(): void {
-    const especialidad = this.filtroEspecialidad.toLowerCase().trim();
-    const especialista = this.filtroEspecialista.toLowerCase().trim();
-    const historiaClinica = this.filtroHistoriaClinica.toLowerCase().trim();
-
-    this.turnosFiltrados = this.turnos.filter((turno) => {
-      const historiaClinicaTexto = this.filtrarHistoriaClinica(turno).toLowerCase();
-      return (
-        turno.especialidad.toLowerCase().includes(especialidad) &&
-        turno.especialista.toLowerCase().includes(especialista) &&
-        historiaClinicaTexto.includes(historiaClinica) // Filtro por historia clínica
-      );
-    });
-  }
-
-  mostrarCalificarAtencion(): void {
+  // Mostrar formulario para calificar la atención
+  mostrarCalificarAtencion(turno: any): void {
+    this.turnoACalificar = turno;
     this.mostrarCalificar = true;
   }
-
+  // Guardar la calificación y comentario del paciente
   guardarCalificacion(): void {
     if (!this.turnoSeleccionado || this.calificacion === null || !this.comentario.trim()) {
       console.warn('Faltan datos para guardar la calificación.');
@@ -170,106 +261,70 @@ export class TurnosPacienteComponent implements OnInit {
       }
     });
   }
+  
+  // Función para cancelar el turno seleccionado
   async cancelarTurnoSeleccionado(): Promise<void> {
     if (!this.turnoSeleccionado) {
       console.warn('No hay un turno seleccionado para cancelar.');
       return;
     }
-  
+
     const turno = this.turnoSeleccionado;
-  
+
     try {
       const mailEspecialista = turno.mailEspecialista;
       const fecha = turno.fecha;
       const especialidad = turno.especialidad;
       const hora = turno.hora;
-  
+
       // Cambiar el estado del turno a "Cancelado" en la colección `turnosPaciente`
       const turnosPacienteQuery = query(
         collection(this.firestore, 'turnosPaciente'),
         where('mailPaciente', '==', turno.paciente)
       );
-  
+
       const querySnapshot = await getDocs(turnosPacienteQuery);
       if (!querySnapshot.empty) {
         const pacienteDoc = querySnapshot.docs[0];
         const pacienteDocRef = doc(this.firestore, 'turnosPaciente', pacienteDoc.id);
         const turnos = pacienteDoc.data()['turnos'] || [];
-  
+
         const turnoIndex = turnos.findIndex((t: any) => t.id === turno.id);
         if (turnoIndex !== -1) {
           turnos[turnoIndex].estado = 'Cancelado';
           await updateDoc(pacienteDocRef, { turnos });
-  
+
           // Actualizar el estado en la vista
           this.turnoSeleccionado.estado = 'Cancelado';
-  
+
           console.log(`Turno con ID ${turno.id} cancelado.`);
-  
+
           // Devolver el turno a la agenda del especialista
-          await this.agregarTurnoAAgenda(mailEspecialista,especialidad ,fecha, hora);
+          await this.agregarTurnoAAgenda(mailEspecialista, especialidad, fecha, hora);
         } else {
-          console.warn('No se encontró el turno en la base de datos.');
+          console.warn('No se encontró el turno en la lista de turnos.');
         }
       } else {
-        console.warn('No se encontró el documento del paciente.');
+        console.warn('No se encontró el turno en los turnos del paciente.');
       }
     } catch (error) {
       console.error('Error al cancelar el turno:', error);
     }
   }
-  
-  
-  async agregarTurnoAAgenda(
-    mailEspecialista: string,
-    especialidad: string,
-    fecha: string,
-    hora: string
-  ): Promise<void> {
-    try {
-      // Referencia a la colección `agendas`
-      const agendasRef = collection(this.firestore, 'agendas');
-  
-      // Consulta para encontrar el documento de la agenda según el especialista y la especialidad
-      const q = query(
-        agendasRef,
-        where('mailEspecialista', '==', mailEspecialista),
-        where('especialidad', '==', especialidad)
-      );
-  
-      const querySnapshot = await getDocs(q);
-  
-      if (!querySnapshot.empty) {
-        const agendaDoc = querySnapshot.docs[0];
-        const agendaData = agendaDoc.data();
-  
-        // Encontrar el índice del mapa con la fecha específica
-        const turnos = agendaData['turnos'] || [];
-        const fechaIndex = turnos.findIndex((t: any) => t.fecha === fecha);
-  
-        if (fechaIndex !== -1) {
-          // Verificar si el horario ya existe para evitar duplicados
-          const horarios = turnos[fechaIndex].horarios;
-          if (!horarios.includes(hora)) {
-            horarios.push(hora); // Agregar el horario
-            horarios.sort(); // Ordenar horarios (opcional)
-  
-            // Actualizar el documento en Firestore
-            const agendaDocRef = doc(this.firestore, 'agendas', agendaDoc.id);
-            await updateDoc(agendaDocRef, { turnos });
-            console.log(`Horario ${hora} agregado a la fecha ${fecha} en la agenda de ${mailEspecialista} (${especialidad})`);
-          } else {
-            console.log(`El horario ${hora} ya existe en la fecha ${fecha}`);
-          }
-        } else {
-          console.warn(`No se encontró la fecha ${fecha} en la agenda`);
-        }
-      } else {
-        console.warn(`No se encontró la agenda para el especialista con email ${mailEspecialista} y especialidad ${especialidad}`);
-      }
-    } catch (error) {
-      console.error('Error al agregar el turno a la agenda:', error);
-    }
+
+  // Función para agregar el turno cancelado nuevamente a la agenda del especialista
+  async agregarTurnoAAgenda(mailEspecialista: string, especialidad: string, fecha: string, hora: string): Promise<void> {
+    const especialistaDocRef = doc(this.firestore, 'agendaEspecialista', mailEspecialista);
+    const agendaDoc = await getDoc(especialistaDocRef);
+    const turnosAgenda = agendaDoc.exists() ? agendaDoc.data()['turnos'] : [];
+
+    turnosAgenda.push({
+      especialidad,
+      fecha,
+      hora,
+      estado: 'Disponible',
+    });
+
+    await updateDoc(especialistaDocRef, { turnos: turnosAgenda });
   }
-  
 }

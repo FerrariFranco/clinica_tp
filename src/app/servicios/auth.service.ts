@@ -54,6 +54,30 @@ export class AuthService {
       })
     );
   }
+
+  async getUserRoleLogin(email: string): Promise<string | null> {
+    if (!email) {
+      throw new Error('El email es requerido para obtener el rol del usuario.');
+    }
+  
+    try {
+      // Consulta a la colección 'usuarios' buscando por el email
+      const usersRef = collection(this.firestore, 'usuarios');
+      const q = query(usersRef, where('email', '==', email)); // Usar el email del usuario
+  
+      const querySnapshot = await getDocs(q);
+  
+      if (!querySnapshot.empty) {
+        const userData = querySnapshot.docs[0].data(); // Obtener el primer documento que coincida
+        return userData['rol'] as string || null; // Retornar el rol
+      }
+  
+      return null; // Si no se encuentra ningún documento
+    } catch (error) {
+      console.error('Error al obtener el rol del usuario:', error);
+      throw error;
+    }
+  }
   sendVerificationEmail(user: User) {
     return sendEmailVerification(user);
   }

@@ -19,23 +19,27 @@ import { RegistroSeleccionComponent } from './componentes/registro-seleccion/reg
 import { InformesComponent } from './componentes/informes/informes.component';
 import { EspecialistaGuard } from './guards/especialista.guard';
 import { PacienteGuard } from './guards/paciente.guard';
+import { ChartistComponent } from './componentes/chartist/chartist.component';
+import { GraficoPorFechaComponent } from './componentes/grafico-por-fecha/grafico-por-fecha.component';
 
 export const routes: Routes = [
   { path: '', component: HomeComponent, data: { animation: 'Home' } },
-  { path: 'login', component: LoginComponent, data: { animation: 'Default' } },
-  { path: 'registro', component: RegistroComponent, data: { animation: 'Default' } },
-  { path: 'registro-seleccion', component: RegistroSeleccionComponent , data: { animation: 'Default' }},
+  { path: 'login', component: LoginComponent, data: { animation: 'rotateIn' } },
+  { path: 'registro', component: RegistroComponent, data: { animation: '' } },
+  { path: 'registro-seleccion', component: RegistroSeleccionComponent , data: { animation: 'deformAndFit' }},
   { path: 'registro-pacientes', component: RegistroPacientesComponent },
   { path: 'registro-especialistas', component: RegistroEspecialistasComponent },
   { path: 'turno', component: SeleccionTurnoComponent, canActivate: [PacienteGuard, AuthGuard], data: { animation: 'Default' } },
   { path: 'horarios', component: MisHorariosComponent, canActivate: [EspecialistaGuard, AuthGuard], data: { animation: 'Default' } },
-  { path: 'mi-perfil', component: MiPerfilComponent, canActivate: [EspecialistaGuard, AuthGuard] , data: { animation: 'MiPerfilPaciente' }},
-  { path: 'mi-perfil-paciente', component: MiPerfilPacienteComponent, canActivate: [PacienteGuard, AuthGuard], data: { animation: 'MiPerfilPaciente' } },
-  { path: 'turnos-paciente', component: TurnosPacienteComponent, canActivate: [PacienteGuard, AuthGuard], data: { animation: 'Default' } },
+  { path: 'mi-perfil', component: MiPerfilComponent, canActivate: [EspecialistaGuard, AuthGuard] , data: { animation: 'shake' }},
+  { path: 'mi-perfil-paciente', component: MiPerfilPacienteComponent, canActivate: [PacienteGuard, AuthGuard], data: { animation: 'shake' } },
+  { path: 'turnos-paciente', component: TurnosPacienteComponent, canActivate: [PacienteGuard, AuthGuard], data: { animation: 'shakeVertical' } },
   { path: 'turnos', component: TurnosComponent, canActivate: [AdminGuard, AuthGuard] },
-  { path: 'informes', component: InformesComponent, canActivate: [AdminGuard, AuthGuard], data: { animation: 'Default' } },
+  { path: 'informes', component: InformesComponent, canActivate: [AdminGuard, AuthGuard], data: { animation: 'leftToRight' } },
   { path: 'pacientes', component: PacientesComponent, canActivate: [EspecialistaGuard, AuthGuard], data: { animation: 'Default' } },
   { path: 'turnos-especialista', component: TurnosEspecialistaComponent, canActivate: [EspecialistaGuard, AuthGuard] },
   { path: 'usuarios', component: UsuariosComponent, canActivate: [AdminGuard, AuthGuard] }, 
+  { path: 'csjs', component: ChartistComponent}, 
+  { path: 'fechas', component: GraficoPorFechaComponent}, 
   { path: '**', redirectTo: '' },
 ];

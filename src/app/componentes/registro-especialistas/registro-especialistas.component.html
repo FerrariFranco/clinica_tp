@@ -1,47 +1,75 @@
 <div class="formulario-container">
   <form (ngSubmit)="onRegister()">
+    <!-- Nombre -->
     <label>
       Nombre:
       <input type="text" [(ngModel)]="nombre" name="nombre" required />
     </label>
+
+    <!-- Apellido -->
     <label>
       Apellido:
       <input type="text" [(ngModel)]="apellido" name="apellido" required />
     </label>
+
+    <!-- Edad -->
     <label>
       Edad:
       <input type="number" [(ngModel)]="edad" name="edad" required />
     </label>
+
+    <!-- DNI -->
     <label>
       DNI:
       <input type="text" [(ngModel)]="dni" name="dni" required />
     </label>
+
+    <!-- Especialidades -->
     <label>
       Especialidades:
-      <div *ngFor="let especialidad of especialidadesList" (click)="toggleEspecialidad(especialidad)"
-     [ngClass]="{'seleccionada': isEspecialidadSeleccionada(especialidad)}" class="especialidad-item">
-  {{ especialidad }}
-</div>
-
+      <div 
+        *ngFor="let especialidad of especialidadesList" 
+        (click)="toggleEspecialidad(especialidad)"
+        [ngClass]="{'seleccionada': isEspecialidadSeleccionada(especialidad)}"
+        class="especialidad-item">
+        {{ especialidad }}
+      </div>
     </label>
-    <input type="text" [(ngModel)]="nuevaEspecialidad" placeholder="Agregar nueva especialidad" name="nuevaEspecialidad" />
+    <input 
+      type="text" 
+      [(ngModel)]="nuevaEspecialidad" 
+      placeholder="Agregar nueva especialidad" 
+      name="nuevaEspecialidad" 
+    />
     <button type="button" (click)="agregarEspecialidad()">Agregar Especialidad</button>
+
+    <!-- Email -->
     <label>
       Mail:
       <input type="email" [(ngModel)]="mail" name="mail" required />
     </label>
+
+    <!-- Contraseña -->
     <label>
       Contraseña (no se guardará):
       <input type="password" [(ngModel)]="password" name="password" required />
     </label>
+
+    <!-- Foto -->
     <label>
       Foto:
       <input type="file" (change)="onFileSelected($event)" required />
     </label>
-    <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
 
+    <!-- Captcha (condicional) -->
+    <div *ngIf="captchaActivo">
+      <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
+    </div>
+
+    <!-- Botón de registro -->
     <button type="submit" [disabled]="loading">Registrar Especialista</button>
 
+    <!-- Spinner -->
     <app-spinner *ngIf="loading"></app-spinner>
   </form>
 </div>

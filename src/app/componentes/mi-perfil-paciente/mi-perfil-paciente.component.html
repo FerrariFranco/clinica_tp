@@ -1,21 +1,53 @@
 <div *ngIf="paciente" class="perfil-container">
-    <h2 class="perfil-titulo">Perfil del Paciente</h2>
-    <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
-    <p><strong>Apellido:</strong> {{ paciente.apellido }}</p>
-    <p><strong>Email:</strong> {{ paciente.mail }}</p>
-    <p><strong>Edad:</strong> {{ paciente.edad }}</p>
-    <p><strong>Obra Social:</strong> {{ paciente.obraSocial }}</p>
-    <img
-      *ngIf="paciente.imagen1Url"
-      [src]="paciente.imagen1Url"
-      alt="Imagen del paciente"
-      class="perfil-imagen"
-    />
-    <button class="perfil-boton" (click)="misTurnos()">Mis turnos</button>
-    <button class="perfil-boton" (click)="descargarHistoriasClinicas()">Descargar historias clinicas</button>
+  <h2 class="perfil-titulo">Perfil del Paciente</h2>
+  <p><strong>Nombre:</strong> {{ paciente.nombre }}</p>
+  <p><strong>Apellido:</strong> {{ paciente.apellido }}</p>
+  <p><strong>Email:</strong> {{ paciente.mail }}</p>
+  <p><strong>Edad:</strong> {{ paciente.edad }}</p>
+  <p><strong>Obra Social:</strong> {{ paciente.obraSocial }}</p>
+  <img
+    *ngIf="paciente.imagen1Url"
+    [src]="paciente.imagen1Url"
+    alt="Imagen del paciente"
+    class="perfil-imagen"
+  />
+  <button class="perfil-boton" (click)="misTurnos()">Mis turnos</button>
+  <button class="perfil-boton" (click)="mostrarModalHistoriasClinicas = true">Ver Historias Clínicas</button>
+  <button class="perfil-boton" (click)="descargarHistoriasClinicas()">Descargar historias clinicas</button>
+</div>
+
+<div *ngIf="!paciente" class="perfil-container">
+  <p class="perfil-mensaje">No se ha encontrado información del paciente.</p>
+</div>
+
+<!-- Modal para mostrar historias clínicas -->
+<div *ngIf="mostrarModalHistoriasClinicas" class="modal-overlay">
+  <div class="modal">
+    <h3>Historias Clínicas</h3>
+    
+    <!-- Lista de historias clínicas -->
+    <div *ngIf="historiasClinicasPaciente.length > 0; else sinHistoriasClinicas" class="contenido-modal">
+      <ul>
+        <li *ngFor="let historia of historiasClinicasPaciente">
+          <strong>Fecha:</strong> {{ historia.fecha | date: 'dd/MM/yyyy' }}<br />
+          <strong>Altura:</strong> {{ historia.altura }}<br />
+          <strong>Peso:</strong> {{ historia.peso }}<br />
+          <strong>Temperatura:</strong> {{ historia.temperatura }}<br />
+          <strong>Presión:</strong> {{ historia.presion }}<br />
+          <strong>Datos Dinámicos:</strong>
+          <ul>
+            <li *ngFor="let dato of historia.datosDinamicos">
+              {{ dato.clave }}: {{ dato.valor }}
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+    <ng-template #sinHistoriasClinicas>
+      <p>No se encontraron historias clínicas disponibles.</p>
+    </ng-template>
+
+    <button (click)="mostrarModalHistoriasClinicas = false">Cerrar</button>
   </div>
-  
-  <div *ngIf="!paciente" class="perfil-container">
-    <p class="perfil-mensaje">No se ha encontrado información del paciente.</p>
-  </div>
-  
+</div>
+

@@ -1,0 +1,36 @@
+#lol {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px; /* Espacio entre los gráficos */
+    justify-content: center; /* Centra los gráficos en el contenedor */
+    padding: 20px; /* Agrega algo de espacio alrededor */
+  }
+  
+  .grafico-container {
+    width: 500px; /* Tamaño fijo para los gráficos */
+    height: 250px; /* Tamaño fijo para los gráficos */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    margin: 10px; /* Espacio entre los gráficos */
+  }
+  
+  canvas {
+    width: 100% !important;  /* Ajusta el tamaño del gráfico */
+    height: auto !important; /* Mantiene la relación de aspecto */
+  }
+  
+  .descarga-buttons {
+    margin-top: 10px; /* Espacio entre el gráfico y los botones de descarga */
+    text-align: center;
+  }
+  
+  #chartEspecialidades, #chartFechas, #chartSemanaActual, #chartFinalizadosSemana {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  

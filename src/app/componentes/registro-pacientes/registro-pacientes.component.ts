@@ -1,7 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, doc, getDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../servicios/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner.component';
@@ -29,6 +29,8 @@ export class RegistroPacientesComponent {
   imagen1: File | null = null;
   imagen2: File | null = null;
   captchaValid = false;
+  captchaActivo: boolean = false;
+
 
   @ViewChild(RecaptchaDirective) recaptchaDirective!: RecaptchaDirective;
 
@@ -38,7 +40,8 @@ export class RegistroPacientesComponent {
     private router: Router,
     private storage: Storage,
     private alertService: AlertService
-  ) {}
+  ) {    this.checkCaptchaStatus(); // Verificar estado del captcha al inicializar
+  }
   
   onCaptchaResolved(isResolved: boolean) {
     this.captchaValid = isResolved;
@@ -51,7 +54,18 @@ export class RegistroPacientesComponent {
   onImage2Selected(event: any) {
     this.imagen2 = event.target.files[0];
   }
-
+  async checkCaptchaStatus() {
+    try {
+      const captchaRef = doc(this.firestore, 'captcha', 'captcha'); // ID único: "captcha"
+      const captchaSnapshot = await getDoc(captchaRef);
+      if (captchaSnapshot.exists()) {
+        const data = captchaSnapshot.data();
+        this.captchaActivo = data['activado'] === true; // Verifica si está activado
+      }
+    } catch (error) {
+      console.error('Error al verificar el estado del captcha:', error);
+    }
+  }
   async onRegister() {
     if (!this.nombre || !this.apellido || this.edad === null || !this.dni || !this.obraSocial || !this.mail || !this.password || !this.imagen1 || !this.imagen2) {
       this.alertService.showAlert('Por favor, complete todos los campos obligatorios.', 'error');
@@ -79,10 +93,13 @@ export class RegistroPacientesComponent {
       return;
     }
 
-    this.captchaValid = this.recaptchaDirective.validateCaptcha();
-    if (!this.captchaValid) {
-      this.alertService.showAlert('Por favor, resuelva el captcha antes de registrarse.', 'error');
-      return;
+    if(this.captchaActivo){
+      
+      this.captchaValid = this.recaptchaDirective.validateCaptcha();
+      if (!this.captchaValid) {
+        this.alertService.showAlert('Por favor, resuelva el captcha antes de registrarse.', 'error');
+        return;
+    }
     }
 
     this.loading = true;

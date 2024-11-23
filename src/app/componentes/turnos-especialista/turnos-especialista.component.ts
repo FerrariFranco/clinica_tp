@@ -26,11 +26,16 @@ export class TurnosEspecialistaComponent implements OnInit {
   mostrarResena: boolean = false;
   resena: string = '';
   historiaClinicaSeleccionada: any = null;
-  filtroEstado: string = ''; // Nuevo filtro para el estado
-  filtroFecha: string = '';
-  filtroPaciente: string = '';
   filtroTexto: string = ''; // Filtro por texto en historia clínica
-
+  modalVisible = false;
+  mostrarModalHistoriaClinica: boolean = false;
+  claveRango: string = '';
+  rango: number = 0;
+  claveValor: string = '';
+  valor: number | null = null;
+  claveSwitch: string = '';
+  switch: boolean = false;
+  
   constructor(private firestore: Firestore, private authService: AuthService) {}
 
   ngOnInit(): void {
@@ -38,41 +43,109 @@ export class TurnosEspecialistaComponent implements OnInit {
   }
   get turnosFiltrados() {
     return this.turnos.filter(turno => {
-      const fechaMatch = this.filtroFecha ? turno.fecha === this.filtroFecha : true;
-      const pacienteMatch = this.filtroPaciente ? turno.paciente?.includes(this.filtroPaciente) : true;
-      const estadoMatch = this.filtroEstado ? turno.estado === this.filtroEstado : true;
-      const textoMatch = this.filtroTexto ? this.filtrarHistoriaClinica(turno).includes(this.filtroTexto) : true;
-
-      return fechaMatch && pacienteMatch && estadoMatch && textoMatch;
+      if (this.filtroTexto) {
+        const textoHistoria = this.filtrarHistoriaClinica(turno);
+        return textoHistoria.includes(this.filtroTexto.toLowerCase());
+      }
+      return true;
     });
   }
-
-  // Filtrar historia clínica por texto
-  filtrarHistoriaClinica(turno: any): string {
-    const historiaClinica = turno.historiaClinica || {};
-    const historiaClinicaTexto = Object.values(historiaClinica).join(' ');
-    return historiaClinicaTexto;
+  
+  mostrarHistoriaClinicaModal() {
+    this.mostrarModalHistoriaClinica = true;
   }
-
-  seleccionarTurno(index: number): void {
-    this.turnos.forEach(turno => turno.seleccionado = false);
-    this.turnos[index].seleccionado = true;
-    this.turnoSeleccionado = this.turnos[index];
-
+  
+  // Método para cerrar el modal
+  cerrarModalHistoriaClinica() {
+    this.mostrarModalHistoriaClinica = false;
+  }
+  abrirModal(turno: any) {
+    this.turnoSeleccionado = turno;
     if (!this.turnoSeleccionado.datosDinamicos) {
       this.turnoSeleccionado.datosDinamicos = [];
     }
-
+    this.modalVisible = true;
+  }
+  
+  cerrarModal() {
+    this.modalVisible = false;
+  }
+  filtrarHistoriaClinica(turno: any): string {
+    const historiaClinica = turno.historiaClinica || {};
+  
+    // Texto de los datos fijos
+    let historiaClinicaTexto = Object.values(historiaClinica).join(' ');
+  
+    // Verificar si existen datos dinámicos en el lugar correcto
+    const datosDinamicos = historiaClinica.datosDinamicos || turno.datosDinamicos || [];
+  
+    // Concatenar datos dinámicos si están presentes
+    if (Array.isArray(datosDinamicos)) {
+      datosDinamicos.forEach((dato: any) => {
+        const clave = dato.clave || '';
+        const valor = dato.valor || '';
+        historiaClinicaTexto += ` ${clave} ${valor}`;
+      });
+    }
+  
+    // También concatenar información adicional del turno, como especialista, especialidad, etc.
+    if (turno.especialista) {
+      historiaClinicaTexto += ` ${turno.especialista}`;
+    }
+    if (turno.especialidad) {
+      historiaClinicaTexto += ` ${turno.especialidad}`;
+    }
+    if (turno.paciente) {
+      historiaClinicaTexto += ` ${turno.paciente}`;
+    }
+    if (turno.estado) {
+      historiaClinicaTexto += ` ${turno.estado}`;
+    }
+  
+    // Puedes seguir agregando más campos si lo necesitas:
+    // if (turno.otraPropiedad) {
+    //   historiaClinicaTexto += ` ${turno.otraPropiedad}`;
+    // }
+  
+    return historiaClinicaTexto.toLowerCase(); // Para facilitar la búsqueda sin importar mayúsculas/minúsculas
+  }
+  
+  
+  seleccionarTurno(index: number): void {
+    // Encuentra el turno seleccionado basado en la lista filtrada
+    const turnoFiltrado = this.turnosFiltrados[index];
+  
+    // Reinicia la selección de todos los turnos
+    this.turnos.forEach(turno => turno.seleccionado = false);
+  
+    // Encuentra el turno original en `this.turnos`
+    const turnoOriginal = this.turnos.find(turno => turno === turnoFiltrado);
+    if (!turnoOriginal) {
+      return; // Si no se encuentra el turno original, no hace nada
+    }
+  
+    // Marca el turno como seleccionado
+    turnoOriginal.seleccionado = true;
+    this.turnoSeleccionado = turnoOriginal;
+  
+    // Asegúrate de inicializar `datosDinamicos` si no existe
+    if (!this.turnoSeleccionado.datosDinamicos) {
+      this.turnoSeleccionado.datosDinamicos = [];
+    }
+  
+    // Configura la historia clínica seleccionada
     if (this.turnoSeleccionado.historiaClinica) {
       this.historiaClinicaSeleccionada = this.turnoSeleccionado.historiaClinica;
+      console.log(this.historiaClinicaSeleccionada)
     } else {
       this.historiaClinicaSeleccionada = null;
     }
-
+  
+    // Reinicia el estado de la reseña
     this.mostrarResena = false;
     this.resena = '';
   }
-
+  
   agregarDatoDinamico(): void {
     if (this.turnoSeleccionado.datosDinamicos.length < 3) {
       this.turnoSeleccionado.datosDinamicos.push({ clave: '', valor: '' });
@@ -101,9 +174,6 @@ export class TurnosEspecialistaComponent implements OnInit {
                       seleccionado: false,
                     };
 
-                    if (this.filtroEstado && nuevoTurno.estado !== this.filtroEstado) {
-                      return; 
-                    }
 
                     if (nuevoTurno.estado === 'Finalizado') {
                       const historiasQuery = query(
@@ -239,19 +309,43 @@ export class TurnosEspecialistaComponent implements OnInit {
     }
   }
   
-
   async guardarHistoriaClinica(): Promise<void> {
     if (!this.turnoSeleccionado) {
       console.warn('No hay turno seleccionado.');
       return;
     }
-
+  
     const mailPaciente = this.turnoSeleccionado.paciente;
     if (!mailPaciente) {
       console.error('No se ha asignado un paciente.');
       return;
     }
-
+  
+    // Validar y agregar los datos dinámicos solo si no están vacíos
+    const datosDinamicosValidos = [];
+  
+    if (this.claveRango.trim() && this.rango >= 0 && this.rango <= 100 && this.claveRango != "" && this.claveRango != null) {
+      datosDinamicosValidos.push({
+        clave: this.claveRango,
+        valor: this.rango
+      });
+      console.log("1")
+    }
+  
+    if (this.claveValor.trim() && this.valor !== null && this.claveValor != null && this.claveValor != "") {
+      datosDinamicosValidos.push({
+        clave: this.claveValor,
+        valor: this.valor
+      });console.log("2")
+    }
+  
+    if (this.claveSwitch.trim() && this.claveSwitch != "" && this.claveSwitch != null) {
+      datosDinamicosValidos.push({
+        clave: this.claveSwitch,
+        valor: this.switch ? 'Sí' : 'No'
+      });console.log("3")
+    }
+  
     const historiaClinica = {
       id: this.turnoSeleccionado.id,
       mailPaciente: mailPaciente,
@@ -261,9 +355,11 @@ export class TurnosEspecialistaComponent implements OnInit {
       peso: this.turnoSeleccionado.peso || '',
       temperatura: this.turnoSeleccionado.temperatura || '',
       presion: this.turnoSeleccionado.presion || '',
-      datosDinamicos: this.turnoSeleccionado.datosDinamicos || []
+      datosDinamicos: [...this.turnoSeleccionado.datosDinamicos, ...datosDinamicosValidos]
     };
-
+    console.log("4")
+    console.log(historiaClinica.datosDinamicos)
+  
     try {
       const docRef = await addDoc(collection(this.firestore, 'historiasClinicas'), historiaClinica);
       console.log('Historia clínica guardada con ID: ', docRef.id);
@@ -272,7 +368,6 @@ export class TurnosEspecialistaComponent implements OnInit {
     }
   }
 
-
   async agregarTurnoAAgenda(
     mailEspecialista: string,
     especialidad: string,
@@ -280,10 +375,8 @@ export class TurnosEspecialistaComponent implements OnInit {
     hora: string
   ): Promise<void> {
     try {
-      // Referencia a la colección `agendas`
       const agendasRef = collection(this.firestore, 'agendas');
   
-      // Consulta para encontrar el documento de la agenda según el especialista y la especialidad
       const q = query(
         agendasRef,
         where('mailEspecialista', '==', mailEspecialista),

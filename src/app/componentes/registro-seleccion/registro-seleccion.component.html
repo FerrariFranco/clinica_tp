@@ -1,20 +1,20 @@
-<div class="seleccion-container" *ngIf="!componenteActivo">
-    <!-- Botón con imagen para Registro Pacientes -->
-    <button class="seleccion-btn" (click)="mostrarComponente('pacientes')">
-      <img src="assets/paciente.png" alt="Paciente" />
-    </button>
-  
-    <!-- Botón con imagen para Registro Especialistas -->
-    <button class="seleccion-btn" (click)="mostrarComponente('especialistas')">
-      <img src="assets/especialista.png" alt="Especialista" />
-    </button>
-  </div>
-  
-  <!-- Componentes de Registro -->
-  <div class="registro-container" *ngIf="componenteActivo === 'pacientes'">
-    <app-registro-pacientes></app-registro-pacientes>
-  </div>
-  <div class="registro-container" *ngIf="componenteActivo === 'especialistas'">
-    <app-registro-especialistas></app-registro-especialistas>
-  </div>
-  
+  <div class="seleccion-container" *ngIf="!componenteActivo">
+      <!-- Botón con imagen para Registro Pacientes -->
+      <button class="seleccion-btn" (click)="mostrarComponente('pacientes')">
+        <img src="assets/paciente.png" alt="Paciente" />
+      </button>
+    
+      <!-- Botón con imagen para Registro Especialistas -->
+      <button class="seleccion-btn" (click)="mostrarComponente('especialistas')">
+        <img src="assets/especialista.png" alt="Especialista" />
+      </button>
+    </div>
+    
+    <!-- Componentes de Registro -->
+    <div class="registro-container" *ngIf="componenteActivo === 'pacientes'">
+      <app-registro-pacientes></app-registro-pacientes>
+    </div>
+    <div class="registro-container" *ngIf="componenteActivo === 'especialistas'">
+      <app-registro-especialistas></app-registro-especialistas>
+    </div>
+    

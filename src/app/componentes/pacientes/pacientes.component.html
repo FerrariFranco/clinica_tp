@@ -2,11 +2,9 @@
   <div *ngFor="let paciente of pacientes" class="paciente-card">
     <div class="paciente-header">
       <h3>{{ paciente.nombre }} {{ paciente.apellido }}</h3>
-      
     </div>
     
     <div class="paciente-details">
-
       <p><strong>Edad:</strong> {{ paciente.edad }}</p>
       <p><strong>Email:</strong> {{ paciente.mail }}</p>
       <p><strong>Obra Social:</strong> {{ paciente.obraSocial }}</p>
@@ -17,7 +15,63 @@
     </div>
     
     <div class="paciente-actions">
+      <button (click)="mostrarHistoriasClinicas(paciente.mail)">Ver historias clínicas</button>
       <button (click)="descargarHistoriasClinicas(paciente.mail)">Descargar historias clínicas</button>
     </div>
+
+    <div *ngIf="paciente.turnos && paciente.turnos.length > 0" class="turnos-container">
+      <h4>Últimos 3 turnos</h4>
+      <div *ngFor="let turno of paciente.turnos" class="turno-card">
+        <div class="turno-info">
+          <strong>Fecha:</strong> {{ turno.fecha | date: 'dd/MM/yyyy' }}
+        </div>
+        <div class="turno-info">
+          <strong>Hora:</strong> {{ turno.hora }}
+        </div>
+        <div class="turno-info">
+          <strong>Especialidad:</strong> {{ turno.especialidad }}
+        </div>
+      </div>
+    </div>
+    <ng-template #sinTurnos>
+      <p>No se encontraron turnos para este paciente.</p>
+    </ng-template>
+  </div>
+</div>
+
+
+<!-- Modal de historias clínicas -->
+<div *ngIf="mostrarModal" class="modal-overlay">
+  <div class="modal">
+    <h3>Historias Clínicas</h3>
+
+    <div class="modal-content">
+      <div *ngIf="historiasClinicas.length > 0; else sinHistorias">
+        <div *ngFor="let historia of historiasClinicas" class="historia-clinica">
+          <p><strong>Fecha:</strong> {{ historia.fecha.toDate() | date: 'dd/MM/yyyy' }}</p>
+          <p><strong>Altura:</strong> {{ historia.altura || 'No disponible' }}</p>
+          <p><strong>Peso:</strong> {{ historia.peso || 'No disponible' }}</p>
+          <p><strong>Temperatura:</strong> {{ historia.temperatura || 'No disponible' }}</p>
+          <p><strong>Presión:</strong> {{ historia.presion || 'No disponible' }}</p>
+
+          <h4>Datos Dinámicos</h4>
+          <ul *ngIf="historia.datosDinamicos?.length > 0; else sinDatos">
+            <li *ngFor="let dato of historia.datosDinamicos">
+              <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+            </li>
+          </ul>
+
+          <ng-template #sinDatos>
+            <p>No hay datos dinámicos disponibles.</p>
+          </ng-template>
+        </div>
+      </div>
+
+      <ng-template #sinHistorias>
+        <p>No se encontraron historias clínicas para este paciente.</p>
+      </ng-template>
+    </div>
+
+    <button (click)="cerrarModal()">Cerrar</button>
   </div>
 </div>

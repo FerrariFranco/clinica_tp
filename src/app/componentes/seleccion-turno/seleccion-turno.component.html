@@ -9,8 +9,8 @@
            class="especialista-button"
            [class.selected]="especialista === selectedEspecialista"
            (click)="onEspecialistaSelect(especialista)">
-        <img [src]="especialista.imagenUrl" alt="{{ especialista.nombre }}" class="especialista-imagen"/>
-        <p>{{ especialista.nombre }} {{ especialista.apellido }}</p>
+           <p>{{ especialista.nombre }} {{ especialista.apellido }}</p>
+           <img [src]="especialista.imagenUrl" alt="{{ especialista.nombre }}" class="especialista-imagen"/>
       </div>
     </div>
   </div>
@@ -57,8 +57,21 @@
     </div>
   </div>
 
-  <!-- Botón para Solicitar Turno -->
+  <div *ngIf="captchaActivo">
+    <div class="captcha-container" *ngIf="captchaVisible">
+      <div appRecaptcha (captchaResolved)="onCaptchaResolved($event)"></div>
+    </div>
+  
+    <!-- Botones para mostrar/ocultar captcha -->
+    <button class="toggle-captcha-btn" (click)="toggleCaptchaVisibility()">
+      {{ captchaVisible ? 'Ocultar Captcha' : 'Mostrar Captcha' }}
+    </button>
+  </div>
+  
+  <!-- Botón de solicitud de turno -->
   <button class="solicitar-turno" 
-          [disabled]="!selectedTurno?.hora" 
+          [disabled]="!captchaValid || !selectedTurno?.hora" 
           (click)="onSolicitarTurno()">Solicitar Turno</button>
+
+
 </div>

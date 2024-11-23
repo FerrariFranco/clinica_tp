@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Firestore, collection, addDoc, getDocs } from '@angular/fire/firestore';
+import { Firestore, collection, addDoc, getDocs, doc, getDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../servicios/auth.service';
 import { Router } from '@angular/router';
 import { SpinnerComponent } from '../spinner/spinner.component';
@@ -32,18 +32,30 @@ export class RegistroEspecialistasComponent implements OnInit {
   captchaValid = false;
   especialidadesSeleccionadas: string[] = []; 
   especialidadesList: string[] = [];
+  captchaActivo: boolean = false;
 
   constructor(
     private firestore: Firestore, 
     private authService: AuthService, 
     private router: Router, 
     private alertService: AlertService
-  ) {}
+  ) {this.checkCaptchaStatus();}
 
   async ngOnInit() {
     await this.cargarEspecialidades();
   }
-
+  async checkCaptchaStatus() {
+    try {
+      const captchaRef = doc(this.firestore, 'captcha', 'captcha'); // ID único: "captcha"
+      const captchaSnapshot = await getDoc(captchaRef);
+      if (captchaSnapshot.exists()) {
+        const data = captchaSnapshot.data();
+        this.captchaActivo = data['activado'] === true; // Verifica si está activado
+      }
+    } catch (error) {
+      console.error('Error al verificar el estado del captcha:', error);
+    }
+  }
   onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {

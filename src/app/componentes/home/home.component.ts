@@ -22,22 +22,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    const user$ = this.authService.getCurrentUser();
-    const role$ = this.authService.getUserRole();
-
-    combineLatest([user$, role$]).subscribe(async ([user, role]) => {
-      this.user = user;
-      this.userRole = role;
-
-      if (this.userRole === 'especialista' && this.user) {
-        const autorizado = await this.authService.isEspecialistaAutorizado(this.user.email!);
-        if (!autorizado) {
-          await this.authService.logout();
-          alert('Tu cuenta aún no está autorizada. Por favor, revisa tu correo electrónico para verificar tu cuenta.');
-          this.router.navigate(['/login']);
-        }
-      }
-    });
+    
   }
 
   async onLogout() {

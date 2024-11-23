@@ -1,9 +1,14 @@
 .seleccion-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-    margin-top: 50px;
+  background-image: url('../../../assets/bg-home.jpg'); /* Ruta a la imagen */
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column; /* Alinea los botones verticalmente */
+  gap: 20px;
+
   
     .seleccion-btn {
       background: none;

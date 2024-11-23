@@ -79,19 +79,31 @@ export class LoginComponent {
   toggleFavoriteButtons() {
     this.showFavoriteButtons = !this.showFavoriteButtons;
   }
-
   async onLogin() {
     this.loading = true;
     try {
       const userCredential = await this.authService.login(this.email, this.password);
       const user = userCredential.user;
-
+  
       if (user.emailVerified) {
+        const userRole = await this.authService.getUserRoleLogin(user.email!); // Obtener el rol del usuario
+  
+        if (userRole === 'especialista') {
+          const autorizado = await this.authService.isEspecialistaAutorizado(user.email!);
+          if (!autorizado) {
+            await this.authService.logout(); // Desloguear al usuario
+            this.alertService.showAlert(
+              'Tu cuenta aún no está autorizada. Por favor, contacta al administrador.',
+              'error'
+            );
+            return; // Salir antes de redirigir
+          }
+        }
+  
+        // Registrar log de ingreso si está autorizado
         await this.registrarLogIngreso(user.email || 'Usuario desconocido');
-
         this.alertService.showAlert('Usuario logueado exitosamente', 'success');
-        
-        this.router.navigate(['/home']);
+        this.router.navigate(['/home']); // Redirigir al home
       } else {
         await sendEmailVerification(user);
         this.alertService.showAlert('Correo no verificado. Se ha enviado un correo de verificación.', 'error');
@@ -102,7 +114,7 @@ export class LoginComponent {
       this.loading = false;
     }
   }
-
+  
   private async registrarLogIngreso(email: string) {
     try {
       const logsRef = collection(this.firestore, 'logs');

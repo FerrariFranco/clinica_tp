@@ -1,51 +1,50 @@
 <div class="mis-turnos">
   <h2>Mis Turnos</h2>
 
-  <!-- Inputs de texto para filtrar -->
-  <div class="filtros">
-    <label>
-      Buscar por especialidad:
-      <input
-        type="text"
-        [(ngModel)]="filtroEspecialidad"
-        (input)="aplicarFiltros()"
-        placeholder="Escribe una especialidad"
-      />
-    </label>
-    <label>
-      Buscar por especialista:
-      <input
-        type="text"
-        [(ngModel)]="filtroEspecialista"
-        (input)="aplicarFiltros()"
-        placeholder="Escribe un especialista"
-      />
-    </label>
-    <label>
-      Buscar por historia clínica:
-      <input
-        type="text"
-        [(ngModel)]="filtroHistoriaClinica"
-        (input)="aplicarFiltros()"
-        placeholder="Escribe un texto de la historia clínica"
-      />
-    </label>
-  </div>
-
-  <!-- Lista de turnos -->
-  <div *ngIf="turnosFiltrados.length > 0; else sinTurnos">
+  <div class="filtro-container">
+    <input 
+      type="text" 
+      [(ngModel)]="filtroTexto" 
+      placeholder="Buscar turnos o datos clínicos..." 
+      class="filtro-input"
+    />
+  </div>  <div *ngIf="turnosFiltrados.length > 0; else sinTurnos">
     <ul class="lista-turnos">
       <li
         *ngFor="let turno of turnosFiltrados; let i = index"
         class="turno-item"
         [class.seleccionado]="turno.seleccionado"
-        (click)="seleccionarTurno(i)"
+        (click)="seleccionarTurno(turno)"
       >
         <strong>Fecha:</strong> {{ turno.fecha | date: 'yyyy-MM-dd' }}<br />
         <strong>Horario:</strong> {{ turno.hora }}<br />
         <strong>Especialidad:</strong> {{ turno.especialidad }}<br />
         <strong>Especialista:</strong> {{ turno.especialista }}<br />
         <strong>Estado:</strong> {{ turno.estado }}
+        
+        <!-- Botones en cada turno -->
+        <div class="turno-actions">
+          <button
+            *ngIf="turno.estado === 'Finalizado'"
+            (click)="mostrarCalificarAtencion(turno)"
+          >
+            Calificar Atención
+          </button>
+
+          <button
+            *ngIf="turno.estado === 'Solicitado' || turno.estado === 'Aceptado'"
+            (click)="abrirModalCancelarTurno(turno)"
+          >
+            Cancelar Turno
+          </button>
+
+          <button
+            *ngIf="turno.estado === 'Finalizado'"
+            (click)="mostrarHistoria(turno)"
+          >
+            Ver Historia Clinica
+          </button>
+        </div>
       </li>
     </ul>
   </div>
@@ -53,43 +52,59 @@
   <ng-template #sinTurnos>
     <p>No se encontraron turnos.</p>
   </ng-template>
-
-  <!-- Turno Seleccionado -->
-  <div *ngIf="turnoSeleccionado" class="turno-seleccionado">
-    <h3>Turno Seleccionado:</h3>
-    <p><strong>Especialista:</strong> {{ turnoSeleccionado.especialista }}</p>
-    <p><strong>Fecha:</strong> {{ turnoSeleccionado.fecha }}</p>
-    <p><strong>Horario:</strong> {{ turnoSeleccionado.hora }}</p>
-    <p><strong>Estado:</strong> {{ turnoSeleccionado.estado }}</p>
-
-    <!-- Botón para calificar atención -->
-    <button *ngIf="turnoSeleccionado.estado === 'Finalizado'" (click)="mostrarCalificarAtencion()">
-      Calificar Atención
-    </button>
-
-    <!-- Botón para cancelar turno -->
-    <button
-      *ngIf="turnoSeleccionado.estado === 'Solicitado' || turnoSeleccionado.estado === 'Aceptado'"
-      (click)="cancelarTurnoSeleccionado()"
-    >
-      Cancelar Turno
-    </button>
-  </div>
-
-  <!-- Calificación -->
-  <div *ngIf="mostrarCalificar" class="calificacion-container">
-    <textarea
-      [(ngModel)]="comentario"
-      rows="4"
-      placeholder="Escribe tu comentario sobre la atención..."
-    ></textarea>
-    <label>
-      Calificación:
-      <select [(ngModel)]="calificacion">
-        <option [value]="null" disabled>Seleccione</option>
-        <option *ngFor="let i of [1, 2, 3, 4, 5]" [value]="i">{{ i }} estrellas</option>
-      </select>
-    </label>
-    <button (click)="guardarCalificacion()">Guardar</button>
-  </div>
 </div>
+
+
+  <!-- Modal para calificar la atención -->
+  <div *ngIf="mostrarCalificar" class="modal-overlay">
+    <div class="modal">
+      <h3>Calificar Atención</h3>
+      <textarea
+        [(ngModel)]="comentario"
+        rows="4"
+        placeholder="Escribe tu comentario sobre la atención..."
+      ></textarea>
+      <label>
+        Calificación:
+        <select [(ngModel)]="calificacion">
+          <option [value]="null" disabled>Seleccione</option>
+          <option *ngFor="let i of [1, 2, 3, 4, 5]" [value]="i">{{ i }} estrellas</option>
+        </select>
+      </label>
+      <button (click)="guardarCalificacion()">Guardar</button>
+      <button (click)="cerrarModalCalificar()">Cerrar</button>
+    </div>
+  </div>
+
+  <!-- Modal para cancelar el turno -->
+  <div *ngIf="mostrarModalCancelar" class="modal-overlay">
+    <div class="modal">
+      <h3>Confirmación de Cancelación</h3>
+      <p>¿Estás seguro de que deseas cancelar este turno?</p>
+      <button (click)="cancelarTurnoSeleccionado()">Confirmar Cancelación</button>
+      <button (click)="cerrarModalCancelar()">Cancelar</button>
+    </div>
+  </div>
+
+  <div *ngIf="mostrarHistoriaClinica" class="modal-overlay">
+    <div class="modal">
+      <h3>Historia Clínica</h3>
+      <p><strong>Altura:</strong> {{ historiaClinicaSeleccionada.altura || 'No disponible' }}</p>
+      <p><strong>Peso:</strong> {{ historiaClinicaSeleccionada.peso || 'No disponible' }}</p>
+      <p><strong>Temperatura:</strong> {{ historiaClinicaSeleccionada.temperatura || 'No disponible' }}</p>
+      <p><strong>Presión:</strong> {{ historiaClinicaSeleccionada.presion || 'No disponible' }}</p>
+  
+      <h4>Datos Dinámicos</h4>
+      <ul *ngIf="historiaClinicaSeleccionada.datosDinamicos?.length > 0; else sinDatos">
+        <li *ngFor="let dato of historiaClinicaSeleccionada.datosDinamicos">
+          <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+        </li>
+      </ul>
+  
+      <ng-template #sinDatos>
+        <p>No hay datos dinámicos disponibles.</p>
+      </ng-template>
+  
+      <button (click)="cerrarModalHistoriaClinica()">Cerrar</button>
+    </div>
+  </div>

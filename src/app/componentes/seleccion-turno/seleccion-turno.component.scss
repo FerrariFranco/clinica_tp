@@ -142,7 +142,6 @@ div {
     color: white;
 }
 
-/* Botón de solicitar turno */
 .solicitar-turno {
     position: fixed;
     bottom: 20px;
@@ -156,8 +155,42 @@ div {
     cursor: pointer;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     transition: background-color 0.3s;
+    z-index: 10; /* Asegura que el botón esté por encima del captcha */
 }
 
 .solicitar-turno:hover {
     background-color: #0056b3;
+}
+
+/* Botón de mostrar/ocultar captcha */
+.toggle-captcha-btn {
+    position: fixed;
+    bottom: 120px; /* Ajusta la distancia desde el botón de solicitar turno */
+    right: 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    z-index: 10;
+    transition: background-color 0.3s;
+}
+
+.toggle-captcha-btn:hover {
+    background-color: #218838;
+}
+
+/* El contenedor del captcha sigue estando fijo */
+.captcha-container {
+    position: fixed;
+    bottom: 70px; /* Ajusta la distancia desde el botón */
+    right: 20px;
+    z-index: 9;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 }
