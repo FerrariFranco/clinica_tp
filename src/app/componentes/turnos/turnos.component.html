@@ -1,28 +1,9 @@
 <div class="filtro-container">
-  <div class="filtro">
-    <label for="especialidad">Especialidad:</label>
-    <input
-      id="especialidad"
-      [(ngModel)]="especialidadSeleccionada"
-      (input)="aplicarFiltros()"
-      type="text"
-      placeholder="Buscar especialidad"
-      class="input-busqueda"
-    />
+  <!-- Filtro por texto -->
+  <div class="filtros">
+    <label for="filtroTexto">Buscar:</label>
+    <input id="filtroTexto" [(ngModel)]="filtroTexto" placeholder="Texto para filtrar" />
   </div>
-
-  <div class="filtro">
-    <label for="especialista">Especialista:</label>
-    <input
-      id="especialista"
-      [(ngModel)]="especialistaSeleccionado"
-      (input)="aplicarFiltros()"
-      type="text"
-      placeholder="Buscar especialista"
-      class="input-busqueda"
-    />
-  </div>
-</div>
 
 <div class="turnos-lista">
   <div
@@ -34,14 +15,28 @@
     <p><strong>{{ turno.especialista }}</strong> - {{ turno.fecha }} - {{ turno.hora }}</p>
     <p class="especialidad">{{ turno.especialidad }}</p>
     <p class="estado">{{ turno.estado }}</p>
+
+    <!-- Mostrar botón de cancelar solo si el estado es distinto de "Finalizado" -->
+    <button 
+      *ngIf="turno.estado == 'Solicitado' || turno.estado == 'Aceptado'" 
+      class="btn-cancelar" 
+      (click)="mostrarComentarioForm = true; turnoSeleccionado = turno; $event.stopPropagation();"
+    >
+      Cancelar Turno
+    </button>
+    <button *ngIf="turno.estado === 'Finalizado'" class="btn-historia" (click)="abrirModalHistoria(turno); $event.stopPropagation()">
+      Ver Historia Clínica
+    </button>
   </div>
 </div>
 
-<div class="accion-container">
-  <button *ngIf="turnoSeleccionado" class="btn-cancelar" (click)="mostrarComentarioForm = true">Cancelar Turno</button>
-
-  <div *ngIf="mostrarComentarioForm && turnoSeleccionado" class="comentario-form">
-    <label for="comentario">Comentario:</label>
+<div class="modal" *ngIf="mostrarComentarioForm">
+  <div class="modal-contenido">
+    <h3>Cancelar Turno</h3>
+    <p>
+      Estás cancelando el turno con el especialista: <strong>{{ turnoSeleccionado?.especialista }}</strong>.
+    </p>
+    <label for="comentario">Motivo de la Cancelación:</label>
     <input
       [(ngModel)]="comentarioCancelacion"
       id="comentario"
@@ -49,6 +44,31 @@
       placeholder="Ingrese el motivo de la cancelación"
       class="input-comentario"
     />
-    <button class="btn-enviar" (click)="cancelarTurno(turnoSeleccionado)">Enviar</button>
+    <div class="modal-actions">
+      <button class="btn-enviar" (click)="cancelarTurno(turnoSeleccionado)">Confirmar</button>
+      <button class="btn-cerrar" (click)="cerrarModalComentario()">Cerrar</button>
+    </div>
+  </div>
+</div>
+<!-- Modal de Historia Clínica -->
+<div class="modal" *ngIf="mostrarModalHistoria">
+  <div class="modal-contenido">
+    <h3>Historia Clínica</h3>
+    <p><strong>Altura:</strong> {{ historiaClinicaSeleccionada?.altura || 'No disponible' }}</p>
+    <p><strong>Peso:</strong> {{ historiaClinicaSeleccionada?.peso || 'No disponible' }}</p>
+    <p><strong>Temperatura:</strong> {{ historiaClinicaSeleccionada?.temperatura || 'No disponible' }}</p>
+    <p><strong>Presión:</strong> {{ historiaClinicaSeleccionada?.presion || 'No disponible' }}</p>
+    
+    <h4>Datos Dinámicos</h4>
+    <ul *ngIf="historiaClinicaSeleccionada?.datosDinamicos?.length > 0; else sinDatos">
+      <li *ngFor="let dato of historiaClinicaSeleccionada.datosDinamicos">
+        <strong>{{ dato.clave }}:</strong> {{ dato.valor }}
+      </li>
+    </ul>
+    <ng-template #sinDatos>
+      <p>No hay datos dinámicos disponibles.</p>
+    </ng-template>
+    
+    <button (click)="cerrarModalHistoriaClinica()">Cerrar</button>
   </div>
 </div>

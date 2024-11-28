@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Firestore, collection, addDoc, doc, getDoc } from '@angular/fire/firestore';
@@ -16,7 +16,7 @@ import { AlertService } from '../../servicios/alert.service';
   templateUrl: './registro-pacientes.component.html',
   styleUrls: ['./registro-pacientes.component.scss'],
 })
-export class RegistroPacientesComponent {
+export class RegistroPacientesComponent implements OnInit {
   nombre = null;
   apellido = null;
   edad: number | null = null;
@@ -30,7 +30,7 @@ export class RegistroPacientesComponent {
   imagen2: File | null = null;
   captchaValid = false;
   captchaActivo: boolean = false;
-
+  userLoggedIn = false; // Nueva propiedad para verificar el estado de usuario logueado
 
   @ViewChild(RecaptchaDirective) recaptchaDirective!: RecaptchaDirective;
 
@@ -40,20 +40,26 @@ export class RegistroPacientesComponent {
     private router: Router,
     private storage: Storage,
     private alertService: AlertService
-  ) {    this.checkCaptchaStatus(); // Verificar estado del captcha al inicializar
+  ) {
+    this.checkCaptchaStatus();
   }
-  
+
+  async ngOnInit() {
+    this.userLoggedIn = !!(await this.authService.getCurrentUser());
+  }
+
   onCaptchaResolved(isResolved: boolean) {
     this.captchaValid = isResolved;
   }
-  
+
   onImage1Selected(event: any) {
     this.imagen1 = event.target.files[0];
   }
-  
+
   onImage2Selected(event: any) {
     this.imagen2 = event.target.files[0];
   }
+
   async checkCaptchaStatus() {
     try {
       const captchaRef = doc(this.firestore, 'captcha', 'captcha'); // ID único: "captcha"
@@ -66,12 +72,22 @@ export class RegistroPacientesComponent {
       console.error('Error al verificar el estado del captcha:', error);
     }
   }
+
   async onRegister() {
-    if (!this.nombre || !this.apellido || this.edad === null || !this.dni || !this.obraSocial || !this.mail || !this.password || !this.imagen1 || !this.imagen2) {
+    if (
+      !this.nombre ||
+      !this.apellido ||
+      this.edad === null ||
+      !this.dni ||
+      !this.obraSocial ||
+      !this.mail ||
+      !this.password ||
+      !this.imagen1 ||
+      !this.imagen2
+    ) {
       this.alertService.showAlert('Por favor, complete todos los campos obligatorios.', 'error');
       return;
     }
-
 
     if (!this.isValidName(this.nombre)) {
       this.alertService.showAlert('El nombre no puede contener números.', 'error');
@@ -93,13 +109,12 @@ export class RegistroPacientesComponent {
       return;
     }
 
-    if(this.captchaActivo){
-      
+    if (this.captchaActivo) {
       this.captchaValid = this.recaptchaDirective.validateCaptcha();
       if (!this.captchaValid) {
         this.alertService.showAlert('Por favor, resuelva el captcha antes de registrarse.', 'error');
         return;
-    }
+      }
     }
 
     this.loading = true;
@@ -131,10 +146,15 @@ export class RegistroPacientesComponent {
       const usuariosRef = collection(this.firestore, 'usuarios');
       await addDoc(usuariosRef, usuarioData);
 
-      this.alertService.showAlert('Registrado Correctamente!! Revise su casilla de correo electronico para verificar su Cuenta', 'success');
+      this.alertService.showAlert(
+        'Registrado Correctamente!! Revise su casilla de correo electrónico para verificar su Cuenta.',
+        'success'
+      );
 
-      await this.authService.logout();
-      this.router.navigate(['/home']);
+      if (!this.userLoggedIn) {
+        await this.authService.logout();
+        this.router.navigate(['/home']);
+      }
     } catch (error) {
       this.alertService.showAlert('ERROR INESPERADO', 'error');
     } finally {
@@ -165,6 +185,6 @@ export class RegistroPacientesComponent {
   }
 
   private isValidAge(age: number): boolean {
-    return Number.isInteger(age) && age > 0; 
+    return Number.isInteger(age) && age > 0;
   }
 }

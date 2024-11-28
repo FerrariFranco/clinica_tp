@@ -217,23 +217,52 @@ button:focus {
   box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
   max-width: 500px;
   width: 90%;
+  max-height: 80vh; /* Altura máxima del modal */
+  overflow-y: auto; /* Habilita el desplazamiento vertical */
   animation: scaleIn 0.4s ease-in-out;
   text-align: center;
 }
 
+
 .modal-contenido h3,
 .modal-contenido h4 {
   color: #2980b9;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-.modal-contenido ul {
-  list-style-type: none;
-  padding: 0;
+.modal-contenido .detalles-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+.modal-contenido::-webkit-scrollbar {
+  width: 8px; /* Ancho de la barra de desplazamiento */
+}
+.modal-contenido .detalle-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background-color: #f7faff;
+  border-radius: 5px;
 }
 
-.modal-contenido ul li {
-  margin-bottom: 10px;
+.modal-contenido .detalle-item span {
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.modal-contenido .detalle-item .clave {
+  color: #2980b9;
+  flex: 1;
+  text-align: left;
+}
+
+.modal-contenido .detalle-item .valor {
+  color: #333;
+  flex: 2;
+  text-align: right;
 }
 
 .modal-contenido button {
@@ -250,7 +279,6 @@ button:focus {
 .modal-contenido button:hover {
   background-color: #1f6fa9;
 }
-
 
 /* Animations */
 @keyframes fadeIn {

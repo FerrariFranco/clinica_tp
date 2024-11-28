@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Firestore, collection, query, where, getDocs, updateDoc, doc, Timestamp, addDoc } from '@angular/fire/firestore';
+import { Firestore, collection, query, where, getDocs, updateDoc, doc, Timestamp, addDoc, getDoc } from '@angular/fire/firestore';
 import { AuthService } from '../../servicios/auth.service';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RecaptchaDirective } from '../../directivas/recaptcha.directive';
 interface Turno {
   id: string;
   mailEspecialista: string;
@@ -18,7 +19,7 @@ interface Turno {
   templateUrl: './turnos-especialista.component.html',
   styleUrls: ['./turnos-especialista.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule]
+  imports: [CommonModule, FormsModule, RecaptchaDirective]
 })
 export class TurnosEspecialistaComponent implements OnInit {
   turnos: any[] = [];
@@ -35,12 +36,41 @@ export class TurnosEspecialistaComponent implements OnInit {
   valor: number | null = null;
   claveSwitch: string = '';
   switch: boolean = false;
-  
+  captchaActivado: boolean = false; 
+  captchaResuelto: boolean = false; // Si el CAPTCHA ha sido resuelto
+
   constructor(private firestore: Firestore, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.cargarTurnos();
+    this.verificarEstadoCaptcha(); 
+
+
   }
+
+  async verificarEstadoCaptcha() {
+    try {
+      const captchaRef = doc(this.firestore, 'captcha', 'captcha');
+      const docSnap = await getDoc(captchaRef);
+
+      if (docSnap.exists()) {
+        this.captchaActivado = !!docSnap.data()['activado'];
+        console.log(`Captcha activado: ${this.captchaActivado}`);
+      } else {
+        console.log('No se encontró el documento del captcha.');
+      }
+    } catch (error) {
+      console.log('Error al verificar el estado del captcha:', error);
+    }
+  }
+
+  resolverCaptcha(resuelto: boolean) {
+    this.captchaResuelto = resuelto;
+    console.log(`Captcha resuelto: ${this.captchaResuelto}`);
+  }
+
+
+  
   get turnosFiltrados() {
     return this.turnos.filter(turno => {
       if (this.filtroTexto) {

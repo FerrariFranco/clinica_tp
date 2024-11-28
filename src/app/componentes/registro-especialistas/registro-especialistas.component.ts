@@ -30,20 +30,35 @@ export class RegistroEspecialistasComponent implements OnInit {
   loading = false;
   selectedFile: File | null = null;
   captchaValid = false;
-  especialidadesSeleccionadas: string[] = []; 
+  especialidadesSeleccionadas: string[] = [];
   especialidadesList: string[] = [];
   captchaActivo: boolean = false;
 
+  private isUserLoggedIn = false; // Variable para rastrear si el usuario está logueado
+
   constructor(
-    private firestore: Firestore, 
-    private authService: AuthService, 
-    private router: Router, 
+    private firestore: Firestore,
+    private authService: AuthService,
+    private router: Router,
     private alertService: AlertService
-  ) {this.checkCaptchaStatus();}
+  ) {
+    this.checkCaptchaStatus();
+  }
 
   async ngOnInit() {
     await this.cargarEspecialidades();
+    this.checkIfUserLoggedIn();
   }
+
+  async checkIfUserLoggedIn() {
+    try {
+      const user = await this.authService.getCurrentUser(); // Método para obtener el usuario actual
+      this.isUserLoggedIn = !!user;
+    } catch (error) {
+      console.error('Error verificando si el usuario está logueado:', error);
+    }
+  }
+
   async checkCaptchaStatus() {
     try {
       const captchaRef = doc(this.firestore, 'captcha', 'captcha'); // ID único: "captcha"
@@ -56,6 +71,7 @@ export class RegistroEspecialistasComponent implements OnInit {
       console.error('Error al verificar el estado del captcha:', error);
     }
   }
+
   onFileSelected(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target.files && target.files.length > 0) {
@@ -97,12 +113,15 @@ export class RegistroEspecialistasComponent implements OnInit {
     if (this.nuevaEspecialidad && !this.especialidadesList.includes(this.nuevaEspecialidad.trim())) {
       try {
         const especialidadesRef = collection(this.firestore, 'especialidades');
-        await addDoc(especialidadesRef, { nombre: this.nuevaEspecialidad.trim(), imagen: "gs://clinica-tp-930ba.appspot.com/iconosEspecialidades/generico.png" });
-        
+        await addDoc(especialidadesRef, {
+          nombre: this.nuevaEspecialidad.trim(),
+          imagen: 'gs://clinica-tp-930ba.appspot.com/iconosEspecialidades/generico.png',
+        });
+
         this.especialidadesList.push(this.nuevaEspecialidad.trim());
         this.nuevaEspecialidad = '';
       } catch (error) {
-        console.error("Error al agregar la especialidad:", error);
+        console.error('Error al agregar la especialidad:', error);
       }
     } else {
       this.alertService.showAlert('La especialidad ya existe o el campo está vacío.', 'error');
@@ -126,14 +145,19 @@ export class RegistroEspecialistasComponent implements OnInit {
     try {
       if (!this.validateFields()) {
         this.loading = false;
-        return; 
+        return;
       }
 
       const userCredential = await this.authService.register(this.mail, this.password);
       const user = userCredential.user;
 
-      await sendEmailVerification(user);
-      this.alertService.showAlert('Registrado Correctamente!! Revise su casilla de correo electrónico para verificar su cuenta.', 'success');
+      if (!this.isUserLoggedIn) {
+        await sendEmailVerification(user);
+        this.alertService.showAlert(
+          'Registrado Correctamente!! Revise su casilla de correo electrónico para verificar su cuenta.',
+          'success'
+        );
+      }
 
       let imageUrl: string | null = null;
       if (this.selectedFile) {
@@ -148,11 +172,11 @@ export class RegistroEspecialistasComponent implements OnInit {
         apellido: this.apellido,
         edad: this.edad,
         dni: this.dni,
-        especialidades: this.especialidadesSeleccionadas,  
+        especialidades: this.especialidadesSeleccionadas,
         mail: this.mail,
         uid: user.uid,
         autorizado: this.autorizado,
-        imagenUrl: imageUrl
+        imagenUrl: imageUrl,
       };
 
       const especialistasRef = collection(this.firestore, 'especialistas');
@@ -161,14 +185,15 @@ export class RegistroEspecialistasComponent implements OnInit {
       const usuarioData = {
         email: this.mail,
         rol: 'especialista',
-        uid: user.uid
+        uid: user.uid,
       };
       const usuariosRef = collection(this.firestore, 'usuarios');
       await addDoc(usuariosRef, usuarioData);
 
-      await this.authService.logout();
-
-      this.router.navigate(['/login']);
+      if (!this.isUserLoggedIn) {
+        await this.authService.logout();
+        this.router.navigate(['/login']);
+      }
     } catch (error) {
       this.alertService.showAlert('ERROR INESPERADO', 'error');
     } finally {

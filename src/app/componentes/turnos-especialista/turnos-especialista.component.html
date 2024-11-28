@@ -90,21 +90,21 @@
       <h4>Datos Dinámicos</h4>
       
       <!-- Rango -->
-      <label for="clave-rango">Clave Rango:</label>
+      <label for="clave-rango">Rango dinamico:</label>
       <input id="clave-rango" [(ngModel)]="claveRango" placeholder="Ingrese clave para rango" /><br />
       
       <label for="rango">Rango (0-100):</label>
       <input id="rango" type="range" min="0" max="100" [(ngModel)]="rango" /><br />
       
       <!-- Valor numérico -->
-      <label for="clave-valor">Clave Valor:</label>
+      <label for="clave-valor">Numero dinamico:</label>
       <input id="clave-valor" [(ngModel)]="claveValor" placeholder="Ingrese clave para valor" /><br />
       
       <label for="valor">Valor Numérico:</label>
       <input id="valor" [(ngModel)]="valor" type="number" placeholder="Ingrese valor numérico" /><br />
       
       <!-- Switch -->
-      <label for="clave-switch">Clave Switch:</label>
+      <label for="clave-switch">Switch dinamico:</label>
       <input id="clave-switch" [(ngModel)]="claveSwitch" placeholder="Ingrese clave para switch" /><br />
       
       <label for="switch">¿Sí o No?</label>
@@ -129,8 +129,14 @@
         rows="4"
         cols="50"
       ></textarea>
-      
-      <button (click)="guardarResenaYFinalizar()">Guardar y Finalizar</button>
+        <!-- CAPTCHA -->
+    <div *ngIf="captchaActivado">
+      <h4>Por favor, resuelva el CAPTCHA</h4>
+      <div appRecaptcha (captchaResolved)="resolverCaptcha($event)"></div>
+    </div>
+    <button (click)="guardarResenaYFinalizar()" [disabled]="captchaActivado && !captchaResuelto">
+      Guardar y Finalizar
+    </button>
       <button (click)="cerrarModal()">Cancelar</button>
     </div>
   </div>

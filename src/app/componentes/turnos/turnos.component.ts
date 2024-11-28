@@ -15,19 +15,21 @@
   })
   export class TurnosComponent implements OnInit {
     turnos: any[] = [];
-    turnosFiltrados: any[] = [];
     especialidades: string[] = [];
     especialistas: string[] = [];
     especialidadSeleccionada: string = '';
     especialistaSeleccionado: string = '';
     comentarioCancelacion: string = '';
-    
+    filtroTexto: string = '';  // Variable para el texto de filtrado
+
     // Propiedad para almacenar el turno seleccionado
     turnoSeleccionado: any = null;
 
     // Controlar la visibilidad del formulario de comentario
     mostrarComentarioForm: boolean = false;
-
+  // Variables para el modal
+  mostrarModalHistoria: boolean = false;
+  historiaClinicaSeleccionada: any = null;
     constructor(
       private firestore: Firestore,
       private authService: AuthService,
@@ -35,46 +37,114 @@
     ) {}
 
     ngOnInit(): void {
-      this.loadTurnos();
+      this.cargarTurnos();
     }
+  // Abrir el modal con la historia clínica
+  abrirModalHistoria(turno: any): void {
+    this.historiaClinicaSeleccionada = turno.historiaClinica;
+    this.mostrarModalHistoria = true;
+  }
+  cerrarModalHistoriaClinica(): void {
+    this.historiaClinicaSeleccionada = null;
+    this.mostrarModalHistoria = false;
+  }
+  // Cerrar el modal
+  cerrarModalHistoria(): void {
+    this.historiaClinicaSeleccionada = null;
+    this.mostrarModalHistoria = false;
+  }
+  async cargarTurnos(): Promise<void> {
+    const turnosPacienteRef = collection(this.firestore, 'turnosPaciente');
+    const historiasClinicasRef = collection(this.firestore, 'historiasClinicas');
 
-    async loadTurnos() {
-      const turnosRef = collection(this.firestore, 'turnosPaciente');
-      const q = query(turnosRef);
-      const querySnapshot = await getDocs(q);
+    try {
+      const querySnapshot = await getDocs(turnosPacienteRef);
 
       if (!querySnapshot.empty) {
-        let todosLosTurnos: any[] = [];
-
-        querySnapshot.docs.forEach(doc => {
+        const turnosPromises = querySnapshot.docs.flatMap(async (doc) => {
           const data = doc.data();
-          if (data['turnos'] && Array.isArray(data['turnos'])) {
-            todosLosTurnos = todosLosTurnos.concat(data['turnos']);
+          if (data['turnos']) {
+            const turnos = Object.values(data['turnos']) as any[];
+
+            return Promise.all(
+              turnos.map(async (turno: any) => {
+                const nuevoTurno = {
+                  ...turno,
+                  paciente: data['mailPaciente'],
+                  seleccionado: false,
+                };
+
+                if (nuevoTurno.estado === 'Finalizado') {
+                  const historiasQuery = query(
+                    historiasClinicasRef,
+                    where('id', '==', nuevoTurno.id)
+                  );
+                  const historiasSnapshot = await getDocs(historiasQuery);
+
+                  if (!historiasSnapshot.empty) {
+                    const historiaClinica = historiasSnapshot.docs[0].data();
+                    nuevoTurno.historiaClinica = historiaClinica;
+                  }
+                }
+
+                return nuevoTurno;
+              })
+            );
           }
+          return [];
         });
 
-        this.turnos = todosLosTurnos;
-        this.turnosFiltrados = [...this.turnos];
-
-        this.especialidades = Array.from(new Set(this.turnos.map(turno => turno.especialidad)));
-        this.especialistas = Array.from(new Set(this.turnos.map(turno => turno.especialista)));
+        const turnosProcesados = (await Promise.all(turnosPromises)).flat();
+        this.turnos = turnosProcesados;
       }
+    } catch (error) {
+      console.error('Error al cargar los turnos:', error);
     }
+  }
 
-    // Filtro por especialidad y especialista
-    aplicarFiltros() {
-      this.turnosFiltrados = this.turnos.filter(turno => {
-        const coincideEspecialidad = this.especialidadSeleccionada ? 
-          turno.especialidad?.toLowerCase().includes(this.especialidadSeleccionada.toLowerCase()) : true;
-          
-        const coincideEspecialista = this.especialistaSeleccionado ? 
-          turno.especialista?.toLowerCase().includes(this.especialistaSeleccionado.toLowerCase()) : true;
+  get turnosFiltrados(): any[] {
+    return this.turnos.filter(turno => {
+      if (this.filtroTexto) {
+        const textoHistoria = this.filtrarHistoriaClinica(turno);
+        return textoHistoria.includes(this.filtroTexto.toLowerCase());
+      }
+      return true; // Si no hay texto, devuelve todos los turnos
+    });
+  }
 
-        return coincideEspecialidad && coincideEspecialista;
+  filtrarHistoriaClinica(turno: any): string {
+    const historiaClinica = turno.historiaClinica || {};
+
+    // Texto de los datos fijos
+    let historiaClinicaTexto = Object.values(historiaClinica).join(' ');
+
+    // Verificar si existen datos dinámicos en el lugar correcto
+    const datosDinamicos = historiaClinica.datosDinamicos || turno.datosDinamicos || [];
+
+    // Concatenar datos dinámicos si están presentes
+    if (Array.isArray(datosDinamicos)) {
+      datosDinamicos.forEach((dato: any) => {
+        const clave = dato.clave || '';
+        const valor = dato.valor || '';
+        historiaClinicaTexto += ` ${clave} ${valor}`;
       });
     }
 
-    // Seleccionar un turno
+    if (turno.especialista) {
+      historiaClinicaTexto += ` ${turno.especialista}`;
+    }
+    if (turno.especialidad) {
+      historiaClinicaTexto += ` ${turno.especialidad}`;
+    }
+    if (turno.paciente) {
+      historiaClinicaTexto += ` ${turno.paciente}`;
+    }
+    if (turno.estado) {
+      historiaClinicaTexto += ` ${turno.estado}`;
+    }
+
+    return historiaClinicaTexto.toLowerCase(); // Para facilitar la búsqueda sin importar mayúsculas/minúsculas
+  }
     seleccionarTurno(turno: any) {
       if (this.turnoSeleccionado === turno) {
         this.turnoSeleccionado = null;  // Desmarcar el turno si ya estaba seleccionado
@@ -88,11 +158,9 @@
     esSeleccionado(turno: any): boolean {
       return this.turnoSeleccionado === turno;
     }
-
-    // Cancelar turno
     async cancelarTurno(turno: any) {
       if (!this.comentarioCancelacion) {
-        alert('Por favor, ingrese un comentario para cancelar el turno.');
+        console.warn('Debe ingresar un comentario para cancelar el turno.');
         return;
       }
     
@@ -105,47 +173,69 @@
       };
     
       try {
+        // Agregar comentario al historial
         await addDoc(comentariosRef, comentario);
     
+        // Referencia a la colección de turnos
         const turnosRef = collection(this.firestore, 'turnosPaciente');
         const querySnapshot = await getDocs(turnosRef);
     
-        let turnoEncontrado = null;
+        let turnoDocRef = null;
+        let turnosActualizados: any[] = [];
     
         querySnapshot.forEach(doc => {
           const data = doc.data();
+    
           if (data['turnos'] && Array.isArray(data['turnos'])) {
-            const turnoBuscado = data['turnos'].find(t => 
+            // Buscar el turno dentro del arreglo
+            const index = data['turnos'].findIndex(t =>
               t.especialista === turno.especialista &&
               t.especialidad === turno.especialidad &&
               t.fecha === turno.fecha &&
               t.hora === turno.hora
-
             );
     
-            if (turnoBuscado) {
-              turnoEncontrado = doc.ref;
+            if (index !== -1) {
+              turnoDocRef = doc.ref;
+              // Crear una copia del arreglo actualizando el estado del turno encontrado
+              turnosActualizados = [...data['turnos']];
+              turnosActualizados[index] = {
+                ...turnosActualizados[index],
+                estado: 'Cancelado'
+              };
             }
           }
         });
     
-        if (turnoEncontrado) {
-          await updateDoc(turnoEncontrado, {
-            estado: 'Cancelado'
-          });
+        if (turnoDocRef) {
+          // Actualizar el documento con los turnos modificados
+          await updateDoc(turnoDocRef, { turnos: turnosActualizados });
     
-          alert('Turno cancelado correctamente.');
-          this.loadTurnos();  // Recargar los turnos
-          this.mostrarComentarioForm = false;  // Ocultar el formulario después de cancelar
-          this.turnoSeleccionado = null;  // Resetear el turno seleccionado
+          // Recargar la lista de turnos para reflejar los cambios
+          this.cargarTurnos();
+    
+          // Resetear variables del formulario/modal
+          this.mostrarComentarioForm = false;
+          this.turnoSeleccionado = null;
+          this.comentarioCancelacion = ''; // Limpiar el comentario
+          console.log('Turno cancelado exitosamente.');
         } else {
-          alert('No se encontró el turno para cancelar.');
+          console.error('No se encontró el turno para cancelar.');
         }
       } catch (error) {
-        console.error('Error al cancelar el turno: ', error);
-        alert('Hubo un problema al cancelar el turno. Intenta de nuevo.');
+        console.error('Error al cancelar el turno:', error);
       }
     }
     
+    
+    abrirModalComentario(turno: any): void {
+      this.turnoSeleccionado = turno;
+      this.mostrarComentarioForm = true;
+    }
+    
+    cerrarModalComentario(): void {
+      this.mostrarComentarioForm = false;
+      this.comentarioCancelacion = ''; // Limpiar el campo
+    }
     
   }
